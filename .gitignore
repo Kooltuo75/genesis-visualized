@@ -1,0 +1,51 @@
+# API Keys and sensitive data
+.env
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python Scripts (Development Only)
+*.py
+
+# Development Data Files
+verse-data.json
+
+# Test Files
+test_*.txt
+nul
+
+# Old/Unused HTML Files
+bible-visualizer.html
+chapters.html
+gallery-view.html
+HOME_PAGE.html
+visualizer.html
+
+# Server Files
+start_server.bat
+
+# Documentation (development only)
+SETUP_INSTRUCTIONS.md
+
+# Backup Folders
+images - Copy/
+
+# Requirements
+requirements.txt
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log

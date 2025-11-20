@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bible Verse Gallery - Creation Timeline</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .back-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .chapter-filter {
+            background: rgba(255,255,255,0.15);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .filter-title {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            color: #4CAF50;
+            text-align: center;
+        }
+
+        .chapter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .chapter-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid transparent;
+            padding: 10px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .chapter-btn:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: #4CAF50;
+        }
+
+        .chapter-btn.active {
+            background: #4CAF50;
+            border-color: #4CAF50;
+        }
+
+        .gallery-container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .frame-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .frame-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
+
+        .frame-number {
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .frame-reference {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2a5298;
+            margin-bottom: 10px;
+        }
+
+        .frame-text {
+            font-size: 0.95em;
+            font-style: italic;
+            color: #555;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .frame-preview {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .frame-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #4CAF50;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .frame-hd-preview {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .frame-ascii {
+            font-family: 'Courier New', monospace;
+            white-space: pre;
+            font-size: 0.5em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-height: 150px;
+            text-align: center;
+            color: #333;
+        }
+
+        .preview-sections {
+            display: flex;
+            gap: 10px;
+            flex-direction: column;
+        }
+
+        .empty-gallery {
+            text-align: center;
+            padding: 100px 20px;
+        }
+
+        .empty-icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+        }
+
+        .stats {
+            text-align: center;
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stats h2 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        /* Modal for full frame view */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            overflow: auto;
+        }
+
+        .modal-content {
+            background: rgba(255,255,255,0.98);
+            margin: 2% auto;
+            padding: 40px;
+            width: 95%;
+            max-width: 1600px;
+            border-radius: 15px;
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: #aaa;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .modal .verse-reference {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2a5298;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .modal .verse-text {
+            font-size: 1.3em;
+            font-style: italic;
+            color: #555;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .modal .scene-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #4CAF50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal .ascii-art {
+            font-family: 'Courier New', monospace;
+            white-space: pre;
+            line-height: 1.4;
+            font-size: 1.5em;
+            background: #f5f5f5;
+            padding: 30px;
+            border-radius: 8px;
+            text-align: center;
+            color: #333;
+        }
+
+        .modal .visuals-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 40px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .modal .hd-image {
+            max-width: 700px;
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📖 Genesis Gallery</h1>
+        <div class="subtitle">Browse All Verses</div>
+
+        <div class="nav-buttons">
+            <a href="index.html" class="back-btn">🏠 Home</a>
+            <a href="reader.html" class="back-btn" style="background: #2196F3;">📖 Sequential Reader</a>
+        </div>
+    </div>
+
+    <div class="gallery-container">
+        <div class="stats" id="stats">
+            <h2>Loading...</h2>
+        </div>
+
+        <div class="chapter-filter">
+            <div class="filter-title">📑 Filter by Chapter</div>
+            <div class="chapter-buttons" id="chapterButtons"></div>
+        </div>
+
+        <div class="gallery-grid" id="galleryGrid">
+            <div class="empty-gallery">
+                <div class="empty-icon">⏳</div>
+                <p style="font-size: 1.5em;">Loading gallery...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for full frame view -->
+    <div id="frameModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        let framesDatabase = null;
+        let currentFilter = 'all';
+
+        async function loadGallery() {
+            try {
+                const response = await fetch('frames-database.json?t=' + Date.now());
+                framesDatabase = await response.json();
+                setupChapterButtons();
+                renderGallery();
+            } catch (error) {
+                console.error('Error loading gallery:', error);
+                document.getElementById('galleryGrid').innerHTML = `
+                    <div class="empty-gallery">
+                        <div class="empty-icon">❌</div>
+                        <p style="font-size: 1.5em;">Error loading gallery</p>
+                    </div>
+                `;
+            }
+        }
+
+        function setupChapterButtons() {
+            const chapters = new Set();
+            framesDatabase.frames.forEach(frame => {
+                const match = frame.reference.match(/Genesis (\d+):/);
+                if (match) {
+                    chapters.add(parseInt(match[1]));
+                }
+            });
+
+            const container = document.getElementById('chapterButtons');
+
+            // Add "All" button
+            const allBtn = document.createElement('button');
+            allBtn.className = 'chapter-btn active';
+            allBtn.textContent = 'All Chapters';
+            allBtn.onclick = () => filterChapter('all');
+            container.appendChild(allBtn);
+
+            // Add chapter buttons
+            Array.from(chapters).sort((a, b) => a - b).forEach(chapter => {
+                const btn = document.createElement('button');
+                btn.className = 'chapter-btn';
+                btn.textContent = `Chapter ${chapter}`;
+                btn.onclick = () => filterChapter(chapter);
+                container.appendChild(btn);
+            });
+        }
+
+        function filterChapter(chapter) {
+            currentFilter = chapter;
+
+            // Update active button
+            document.querySelectorAll('.chapter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            renderGallery();
+        }
+
+        function renderGallery() {
+            const statsEl = document.getElementById('stats');
+            const gridEl = document.getElementById('galleryGrid');
+
+            if (!framesDatabase || framesDatabase.frames.length === 0) {
+                statsEl.innerHTML = '<h2>No frames yet</h2><p>Start typing verses to build your gallery!</p>';
+                gridEl.innerHTML = `
+                    <div class="empty-gallery">
+                        <div class="empty-icon">📖</div>
+                        <p style="font-size: 1.5em;">No frames yet</p>
+                        <p style="opacity: 0.7; margin-top: 10px;">Type verses in the chat to start creating!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Filter frames by chapter
+            let filteredFrames = framesDatabase.frames;
+            if (currentFilter !== 'all') {
+                filteredFrames = framesDatabase.frames.filter(frame => {
+                    const match = frame.reference.match(/Genesis (\d+):/);
+                    return match && parseInt(match[1]) === currentFilter;
+                });
+            }
+
+            // Update stats
+            if (currentFilter === 'all') {
+                statsEl.innerHTML = `
+                    <h2>${framesDatabase.totalFrames} Total Verses</h2>
+                    <p>Click any verse to view full size</p>
+                `;
+            } else {
+                statsEl.innerHTML = `
+                    <h2>${filteredFrames.length} Verses in Chapter ${currentFilter}</h2>
+                    <p>Click any verse to view full size</p>
+                `;
+            }
+
+            // Render frames
+            gridEl.innerHTML = '';
+            filteredFrames.forEach((frame, index) => {
+                const card = document.createElement('div');
+                card.className = 'frame-card';
+                card.onclick = () => openModal(index);
+
+                let previewHTML = `
+                    <div class="frame-number">Frame ${frame.id}</div>
+                    <div class="frame-reference">${frame.reference}</div>
+                    <div class="frame-text">"${frame.text}"</div>
+                    <div class="frame-preview">
+                        <div class="frame-title">${frame.visualization.title}</div>
+                `;
+
+                // Add HD image if available
+                if (frame.visualization.imagePath) {
+                    previewHTML += `<img src="${frame.visualization.imagePath}?t=${Date.now()}" alt="${frame.reference}" class="frame-hd-preview">`;
+                }
+
+                // Add ASCII art preview
+                previewHTML += `
+                        <div class="frame-ascii">${frame.visualization.asciiArt}</div>
+                    </div>
+                `;
+
+                card.innerHTML = previewHTML;
+
+                gridEl.appendChild(card);
+            });
+        }
+
+        let currentModalIndex = 0;
+
+        function openModal(index) {
+            currentModalIndex = index;
+            showModalContent();
+            document.getElementById('frameModal').style.display = 'block';
+        }
+
+        function showModalContent() {
+            const frame = framesDatabase.frames[currentModalIndex];
+            const modal = document.getElementById('frameModal');
+            const modalContent = document.getElementById('modalContent');
+
+            let html = `
+                <div class="verse-reference">${frame.reference}</div>
+                <div class="verse-text">"${frame.text}"</div>
+                <div class="scene-title">${frame.visualization.title}</div>
+                <div class="visuals-container">
+            `;
+
+            // Add HD image if available
+            if (frame.visualization.imagePath) {
+                html += `
+                    <div style="text-align: center;">
+                        <img src="${frame.visualization.imagePath}?t=${Date.now()}" alt="${frame.reference}" class="hd-image">
+                        <div style="margin-top: 15px;">
+                            <a href="${frame.visualization.imagePath}" download="${frame.reference.replace(/:/g, '_')}.png"
+                               style="background: #2196F3; color: white; padding: 10px 20px; border-radius: 20px; text-decoration: none; display: inline-block; font-weight: bold; margin-right: 10px;">
+                               ⬇️ Download Image
+                            </a>
+                            <button onclick="downloadFrame(${currentModalIndex}); event.stopPropagation();"
+                               style="background: #FF9800; color: white; padding: 10px 20px; border-radius: 20px; border: none; cursor: pointer; font-weight: bold;">
+                               📥 Download Full Frame
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Add ASCII art
+            html += `<div class="ascii-art">${frame.visualization.asciiArt}</div>`;
+
+            html += `</div>`;
+
+            // Add navigation buttons
+            html += `
+                <div style="display: flex; justify-content: space-between; margin-top: 30px; padding-top: 30px; border-top: 2px solid #e0e0e0;">
+                    <button onclick="previousModal()" ${currentModalIndex === 0 ? 'disabled' : ''}
+                        style="background: #4CAF50; color: white; border: none; padding: 12px 25px; border-radius: 25px; cursor: pointer; font-size: 1em; font-weight: bold;">
+                        ⬅ Previous
+                    </button>
+                    <span style="color: #666; padding: 12px 20px;">Verse ${currentModalIndex + 1} of ${framesDatabase.frames.length}</span>
+                    <button onclick="nextModal()" ${currentModalIndex >= framesDatabase.frames.length - 1 ? 'disabled' : ''}
+                        style="background: #4CAF50; color: white; border: none; padding: 12px 25px; border-radius: 25px; cursor: pointer; font-size: 1em; font-weight: bold;">
+                        Next ➡
+                    </button>
+                </div>
+            `;
+
+            modalContent.innerHTML = html;
+        }
+
+        function previousModal() {
+            if (currentModalIndex > 0) {
+                currentModalIndex--;
+                showModalContent();
+            }
+        }
+
+        function nextModal() {
+            if (currentModalIndex < framesDatabase.frames.length - 1) {
+                currentModalIndex++;
+                showModalContent();
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('frameModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('frameModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        // Close modal with Escape key, navigate with arrows
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+            if (document.getElementById('frameModal').style.display === 'block') {
+                if (e.key === 'ArrowLeft') previousModal();
+                if (e.key === 'ArrowRight') nextModal();
+            }
+        });
+
+        async function downloadFrame(index) {
+            const frame = framesDatabase.frames[index];
+            const fileName = frame.reference.replace(/:/g, '_').replace(/ /g, '_') + '.html';
+
+            // Convert image to base64 if it exists
+            let imageDataUrl = '';
+            if (frame.visualization.imagePath) {
+                try {
+                    const response = await fetch(frame.visualization.imagePath);
+                    const blob = await response.blob();
+                    imageDataUrl = await new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve(reader.result);
+                        reader.readAsDataURL(blob);
+                    });
+                } catch (error) {
+                    console.error('Error loading image:', error);
+                }
+            }
+
+            const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${frame.reference}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #fff;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 15px;
+            padding: 40px;
+            color: #333;
+        }
+        .verse-reference {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #2a5298;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .verse-text {
+            font-size: 1.6em;
+            font-style: italic;
+            color: #555;
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.8;
+        }
+        .scene-title {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4CAF50;
+            margin: 30px 0 20px 0;
+            text-align: center;
+        }
+        .visuals {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 40px;
+            margin-top: 20px;
+        }
+        .ascii-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 5px solid #4CAF50;
+        }
+        .ascii-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2a5298;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .ascii-art {
+            font-family: 'Courier New', monospace;
+            white-space: pre;
+            line-height: 1.4;
+            font-size: 1.2em;
+            text-align: center;
+            color: #333;
+            overflow-x: auto;
+        }
+        .image-section {
+            text-align: center;
+        }
+        .hd-image {
+            width: 100%;
+            max-width: 700px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="verse-reference">${frame.reference}</div>
+        <div class="verse-text">"${frame.text}"</div>
+        <div class="scene-title">${frame.visualization.title}</div>
+        <div class="visuals">
+            <div class="ascii-section">
+                <div class="ascii-title">📝 ASCII Visualization</div>
+                <div class="ascii-art">${frame.visualization.asciiArt}</div>
+            </div>
+            ${imageDataUrl ? `
+            <div class="image-section">
+                <div class="ascii-title">🎨 AI-Generated Artwork</div>
+                <img src="${imageDataUrl}" alt="${frame.reference}" class="hd-image">
+            </div>
+            ` : ''}
+        </div>
+        <div class="footer">
+            <strong>Genesis Visualized</strong><br>
+            A multimedia journey through the beginning of all things<br>
+            Freely given | No advertisements | To God's glory
+        </div>
+    </div>
+</body>
+</html>`;
+
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Initial load only - no auto-refresh to prevent flickering
+        loadGallery();
+
+        // Optional: Manual refresh button with keyboard shortcut
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'r' || e.key === 'R') {
+                loadGallery();
+            }
+        });
+    </script>
+</body>
+</html>

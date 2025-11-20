@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genesis Sequential Reader</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .home-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .home-btn:hover {
+            background: #45a049;
+        }
+
+        .chapter-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .chapter-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .chapter-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .chapter-btn.active {
+            background: #4CAF50;
+        }
+
+        .content-area {
+            padding-top: 100px;
+            padding-bottom: 120px;
+            min-height: 100vh;
+        }
+
+        .verse-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .verse-card {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            color: #333;
+        }
+
+        .verse-reference {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #2a5298;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .verse-text {
+            font-size: 1.6em;
+            font-style: italic;
+            color: #555;
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.8;
+        }
+
+        .scene-title {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4CAF50;
+            margin: 30px 0 20px 0;
+            text-align: center;
+        }
+
+        .visuals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 40px;
+            margin-top: 20px;
+        }
+
+        .ascii-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 5px solid #4CAF50;
+        }
+
+        .ascii-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2a5298;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .ascii-art {
+            font-family: 'Courier New', monospace;
+            white-space: pre;
+            line-height: 1.4;
+            font-size: 1.2em;
+            text-align: center;
+            color: #333;
+            overflow-x: auto;
+        }
+
+        .image-section {
+            text-align: center;
+        }
+
+        .hd-image {
+            width: 100%;
+            max-width: 700px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            cursor: pointer;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.9);
+            padding: 20px 30px;
+            border-radius: 50px;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: #45a049;
+        }
+
+        .nav-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .verse-counter {
+            color: white;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .visuals-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <a href="index.html" class="home-btn">🏠 Home</a>
+            <div class="chapter-selector" id="chapterSelector">
+                <span style="opacity: 0.9;">Chapter:</span>
+            </div>
+            <a href="gallery.html" class="home-btn" style="background: #2196F3;">📚 Gallery</a>
+        </div>
+    </div>
+
+    <div class="content-area">
+        <div class="verse-container" id="verseContainer">
+            <div style="text-align: center; padding: 100px 20px; color: #999;">
+                <div style="font-size: 5em;">📖</div>
+                <p style="font-size: 1.5em;">Loading verses...</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-btn" id="prevBtn">⬅ Previous</button>
+        <div class="verse-counter" id="verseCounter">1 of 1</div>
+        <button class="nav-btn" id="nextBtn">Next ➡</button>
+    </div>
+
+    <script>
+        let framesDatabase = null;
+        let currentIndex = 0;
+
+        async function loadDatabase() {
+            try {
+                const response = await fetch('frames-database.json');
+                framesDatabase = await response.json();
+
+                if (framesDatabase.frames.length > 0) {
+                    setupChapterButtons();
+                    showVerse(0);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function setupChapterButtons() {
+            const chapters = new Set();
+            framesDatabase.frames.forEach(frame => {
+                const match = frame.reference.match(/Genesis (\d+):/);
+                if (match) chapters.add(parseInt(match[1]));
+            });
+
+            const selector = document.getElementById('chapterSelector');
+
+            const allBtn = document.createElement('button');
+            allBtn.className = 'chapter-btn active';
+            allBtn.textContent = 'All';
+            allBtn.onclick = () => jumpToChapter('all');
+            selector.appendChild(allBtn);
+
+            Array.from(chapters).sort((a, b) => a - b).forEach(chapter => {
+                const btn = document.createElement('button');
+                btn.className = 'chapter-btn';
+                btn.textContent = chapter;
+                btn.onclick = () => jumpToChapter(chapter);
+                selector.appendChild(btn);
+            });
+        }
+
+        function jumpToChapter(chapter) {
+            document.querySelectorAll('.chapter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            if (chapter === 'all') {
+                showVerse(0);
+            } else {
+                const firstIndex = framesDatabase.frames.findIndex(frame => {
+                    const match = frame.reference.match(/Genesis (\d+):/);
+                    return match && parseInt(match[1]) === chapter;
+                });
+                if (firstIndex !== -1) showVerse(firstIndex);
+            }
+        }
+
+        function showVerse(index) {
+            if (!framesDatabase || index < 0 || index >= framesDatabase.frames.length) return;
+
+            currentIndex = index;
+            const frame = framesDatabase.frames[index];
+
+            let html = `
+                <div class="verse-card">
+                    <div class="verse-reference">${frame.reference}</div>
+                    <div class="verse-text">"${frame.text}"</div>
+                    <div class="scene-title">${frame.visualization.title}</div>
+                    <div class="visuals-grid">
+            `;
+
+            if (frame.visualization.asciiArt) {
+                html += `
+                    <div class="ascii-section">
+                        <div class="ascii-title">📝 ASCII Visualization</div>
+                        <div class="ascii-art">${frame.visualization.asciiArt}</div>
+                    </div>
+                `;
+            }
+
+            if (frame.visualization.imagePath) {
+                html += `
+                    <div class="image-section">
+                        <div class="ascii-title">🎨 AI-Generated Artwork</div>
+                        <img src="${frame.visualization.imagePath}"
+                             alt="${frame.reference}"
+                             class="hd-image"
+                             onerror="this.style.display='none'">
+                        <div style="margin-top: 15px;">
+                            <a href="${frame.visualization.imagePath}" download="${frame.reference.replace(/:/g, '_')}.png"
+                               style="background: #2196F3; color: white; padding: 10px 20px; border-radius: 20px; text-decoration: none; display: inline-block; font-weight: bold; margin-right: 10px;">
+                               ⬇️ Download Image
+                            </a>
+                            <button onclick="downloadFrame(${currentIndex}); event.preventDefault();"
+                               style="background: #FF9800; color: white; padding: 10px 20px; border-radius: 20px; border: none; cursor: pointer; font-weight: bold;">
+                               📥 Download Full Frame
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += `</div></div>`;
+
+            document.getElementById('verseContainer').innerHTML = html;
+            updateControls();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function updateControls() {
+            const total = framesDatabase.frames.length;
+            const current = currentIndex + 1;
+
+            document.getElementById('verseCounter').textContent = `${current} of ${total}`;
+            document.getElementById('prevBtn').disabled = currentIndex === 0;
+            document.getElementById('nextBtn').disabled = currentIndex >= total - 1;
+        }
+
+        function previousVerse() {
+            if (currentIndex > 0) showVerse(currentIndex - 1);
+        }
+
+        function nextVerse() {
+            if (currentIndex < framesDatabase.frames.length - 1) showVerse(currentIndex + 1);
+        }
+
+        document.getElementById('prevBtn').onclick = previousVerse;
+        document.getElementById('nextBtn').onclick = nextVerse;
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') previousVerse();
+            if (e.key === 'ArrowRight') nextVerse();
+        });
+
+        async function downloadFrame(index) {
+            const frame = framesDatabase.frames[index];
+            const fileName = frame.reference.replace(/:/g, '_').replace(/ /g, '_') + '.html';
+
+            // Convert image to base64 if it exists
+            let imageDataUrl = '';
+            if (frame.visualization.imagePath) {
+                try {
+                    const response = await fetch(frame.visualization.imagePath);
+                    const blob = await response.blob();
+                    imageDataUrl = await new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve(reader.result);
+                        reader.readAsDataURL(blob);
+                    });
+                } catch (error) {
+                    console.error('Error loading image:', error);
+                }
+            }
+
+            const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${frame.reference}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #fff;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 15px;
+            padding: 40px;
+            color: #333;
+        }
+        .verse-reference {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #2a5298;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .verse-text {
+            font-size: 1.6em;
+            font-style: italic;
+            color: #555;
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.8;
+        }
+        .scene-title {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4CAF50;
+            margin: 30px 0 20px 0;
+            text-align: center;
+        }
+        .visuals {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 40px;
+            margin-top: 20px;
+        }
+        .ascii-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 5px solid #4CAF50;
+        }
+        .ascii-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2a5298;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .ascii-art {
+            font-family: 'Courier New', monospace;
+            white-space: pre;
+            line-height: 1.4;
+            font-size: 1.2em;
+            text-align: center;
+            color: #333;
+            overflow-x: auto;
+        }
+        .image-section {
+            text-align: center;
+        }
+        .hd-image {
+            width: 100%;
+            max-width: 700px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="verse-reference">${frame.reference}</div>
+        <div class="verse-text">"${frame.text}"</div>
+        <div class="scene-title">${frame.visualization.title}</div>
+        <div class="visuals">
+            <div class="ascii-section">
+                <div class="ascii-title">📝 ASCII Visualization</div>
+                <div class="ascii-art">${frame.visualization.asciiArt}</div>
+            </div>
+            ${imageDataUrl ? `
+            <div class="image-section">
+                <div class="ascii-title">🎨 AI-Generated Artwork</div>
+                <img src="${imageDataUrl}" alt="${frame.reference}" class="hd-image">
+            </div>
+            ` : ''}
+        </div>
+        <div class="footer">
+            <strong>Genesis Visualized</strong><br>
+            A multimedia journey through the beginning of all things<br>
+            Freely given | No advertisements | To God's glory
+        </div>
+    </div>
+</body>
+</html>`;
+
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        loadDatabase();
+    </script>
+</body>
+</html>

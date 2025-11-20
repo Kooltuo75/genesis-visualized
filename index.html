@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genesis Visualized - In the Beginning</title>
+    <meta name="description" content="Experience the Book of Genesis through beautiful AI-generated imagery and ASCII art. A free, ad-free journey through the first book of the Bible.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            max-width: 900px;
+            z-index: 1;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            font-size: 6em;
+            margin-bottom: 20px;
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.05); opacity: 1; }
+        }
+
+        h1 {
+            font-size: 4em;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            opacity: 0.95;
+            font-style: italic;
+        }
+
+        .verse-quote {
+            font-size: 1.3em;
+            margin: 30px auto;
+            padding: 25px;
+            background: rgba(255,255,255,0.1);
+            border-left: 5px solid #4CAF50;
+            border-radius: 8px;
+            max-width: 700px;
+            backdrop-filter: blur(10px);
+        }
+
+        .description {
+            font-size: 1.2em;
+            margin: 30px auto;
+            line-height: 1.8;
+            max-width: 800px;
+            opacity: 0.9;
+        }
+
+        .stats-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background: rgba(255,255,255,0.15);
+            padding: 25px 35px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            min-width: 150px;
+        }
+
+        .stat-number {
+            font-size: 3em;
+            font-weight: bold;
+            color: #4CAF50;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 1em;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 50px;
+            flex-wrap: wrap;
+        }
+
+        .cta-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 30px;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .cta-btn:hover {
+            background: #45a049;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+        }
+
+        .cta-btn.secondary {
+            background: #2196F3;
+        }
+
+        .cta-btn.secondary:hover {
+            background: #0b7dda;
+        }
+
+        .features {
+            background: rgba(0,0,0,0.2);
+            padding: 80px 20px;
+            margin-top: 60px;
+        }
+
+        .features-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .features h2 {
+            font-size: 3em;
+            text-align: center;
+            margin-bottom: 50px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        .feature-card {
+            background: rgba(255,255,255,0.1);
+            padding: 35px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.2);
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.15);
+            border-color: #4CAF50;
+        }
+
+        .feature-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .feature-card h3 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            color: #4CAF50;
+        }
+
+        .feature-card p {
+            font-size: 1.1em;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(0,0,0,0.3);
+            margin-top: 60px;
+        }
+
+        .footer-content {
+            font-size: 1.1em;
+            line-height: 1.8;
+        }
+
+        .footer-verse {
+            font-style: italic;
+            margin-top: 20px;
+            opacity: 0.8;
+            font-size: 1em;
+        }
+
+        .glory-message {
+            background: rgba(76, 175, 80, 0.2);
+            border: 2px solid #4CAF50;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 40px auto;
+            max-width: 700px;
+            text-align: center;
+        }
+
+        .glory-message h3 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            color: #4CAF50;
+        }
+
+        .glory-message p {
+            font-size: 1.2em;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5em;
+            }
+
+            .subtitle {
+                font-size: 1.3em;
+            }
+
+            .logo {
+                font-size: 4em;
+            }
+
+            .stats-container {
+                gap: 20px;
+            }
+
+            .stat-box {
+                padding: 20px 25px;
+                min-width: 120px;
+            }
+
+            .stat-number {
+                font-size: 2em;
+            }
+
+            .cta-btn {
+                padding: 15px 30px;
+                font-size: 1.1em;
+            }
+        }
+
+        .loading-stats {
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div class="hero-content">
+            <div class="logo">📖</div>
+            <h1>Genesis Visualized</h1>
+            <div class="subtitle">In the Beginning...</div>
+
+            <div class="verse-quote">
+                "In the beginning God created the heavens and the earth."
+                <br><strong>— Genesis 1:1</strong>
+            </div>
+
+            <div class="description">
+                Experience the Book of Genesis like never before. Journey through the creation story,
+                the flood, and the foundations of our faith through beautiful AI-generated artwork
+                and creative ASCII visualizations.
+            </div>
+
+            <div class="stats-container" id="statsContainer">
+                <div class="stat-box loading-stats">
+                    <span class="stat-number" id="totalVerses">...</span>
+                    <span class="stat-label">Verses</span>
+                </div>
+                <div class="stat-box loading-stats">
+                    <span class="stat-number" id="totalChapters">...</span>
+                    <span class="stat-label">Chapters</span>
+                </div>
+                <div class="stat-box loading-stats">
+                    <span class="stat-number" id="totalImages">...</span>
+                    <span class="stat-label">HD Images</span>
+                </div>
+            </div>
+
+            <div class="cta-buttons">
+                <a href="reader.html" class="cta-btn">Start Reading</a>
+                <a href="gallery-view.html" class="cta-btn secondary">Browse Gallery</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="features">
+        <div class="features-container">
+            <h2>Explore God's Word</h2>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="feature-icon">🎨</span>
+                    <h3>AI-Generated Art</h3>
+                    <p>Each verse brought to life with stunning HD imagery created by DALL-E 3,
+                       capturing the majesty and wonder of God's creation.</p>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-icon">✨</span>
+                    <h3>ASCII Visualizations</h3>
+                    <p>Creative text-based artwork that adds a unique, artistic interpretation
+                       to each passage of Scripture.</p>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-icon">📱</span>
+                    <h3>Easy Navigation</h3>
+                    <p>Browse by chapter, search by verse, or read sequentially.
+                       Works beautifully on desktop, tablet, and mobile.</p>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-icon">🆓</span>
+                    <h3>Completely Free</h3>
+                    <p>No ads, no subscriptions, no hidden costs. Created for God's glory
+                       and freely shared with the world.</p>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-icon">📚</span>
+                    <h3>Complete Coverage</h3>
+                    <p>From creation through the tower of Babel, experience comprehensive
+                       visualizations of Genesis chapters 1-10.</p>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-icon">💫</span>
+                    <h3>Inspiring Experience</h3>
+                    <p>Immerse yourself in Scripture with a multimedia experience designed
+                       to deepen understanding and appreciation.</p>
+                </div>
+            </div>
+
+            <div class="glory-message">
+                <h3>To God Be The Glory</h3>
+                <p>
+                    This project is offered freely to all who seek to explore God's Word.
+                    May it bring you closer to the Creator and deepen your understanding
+                    of His magnificent creation story.
+                </p>
+            </div>
+
+            <div class="cta-buttons">
+                <a href="chapters.html" class="cta-btn">Browse by Chapter</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-content">
+            <strong>Genesis Visualized</strong>
+            <br>
+            A multimedia journey through the beginning of all things
+            <br><br>
+            Freely given | No advertisements | To God's glory
+            <div class="footer-verse">
+                "For from him and through him and for him are all things.
+                To him be the glory forever! Amen."
+                <br>— Romans 11:36
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load statistics from database
+        async function loadStats() {
+            try {
+                const response = await fetch('frames-database.json');
+                const data = await response.json();
+
+                const totalVerses = data.totalFrames || 0;
+                const imagesCount = data.frames.filter(f => f.visualization.imagePath).length;
+
+                // Calculate unique chapters
+                const chapters = new Set();
+                data.frames.forEach(frame => {
+                    const match = frame.reference.match(/Genesis (\d+):/);
+                    if (match) {
+                        chapters.add(parseInt(match[1]));
+                    }
+                });
+
+                // Update stats
+                document.getElementById('totalVerses').textContent = totalVerses;
+                document.getElementById('totalChapters').textContent = chapters.size;
+                document.getElementById('totalImages').textContent = imagesCount;
+
+                // Remove loading state
+                document.querySelectorAll('.stat-box').forEach(box => {
+                    box.classList.remove('loading-stats');
+                });
+            } catch (error) {
+                console.error('Error loading stats:', error);
+                document.getElementById('totalVerses').textContent = '267+';
+                document.getElementById('totalChapters').textContent = '10';
+                document.getElementById('totalImages').textContent = '252+';
+            }
+        }
+
+        loadStats();
+    </script>
+</body>
+</html>
