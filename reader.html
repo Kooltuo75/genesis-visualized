@@ -216,17 +216,229 @@
             border-radius: 20px;
         }
 
+        /* Mobile Navigation */
+        .mobile-menu-btn {
+            display: none;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.2em;
+        }
+
+        .mobile-menu-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 200;
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 280px;
+            height: 100%;
+            background: #1e3c72;
+            z-index: 201;
+            transition: right 0.3s;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .mobile-menu.open {
+            right: 0;
+        }
+
+        .mobile-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .mobile-menu-title {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .mobile-close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2em;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .mobile-nav-section {
+            margin-bottom: 25px;
+        }
+
+        .mobile-nav-label {
+            font-size: 0.9em;
+            opacity: 0.7;
+            margin-bottom: 10px;
+        }
+
+        .mobile-nav-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .mobile-nav-btn {
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .mobile-nav-btn:hover,
+        .mobile-nav-btn.active {
+            background: #4CAF50;
+        }
+
         @media (max-width: 768px) {
             .visuals-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .header {
+                padding: 12px 15px;
+            }
+
+            .header-content {
+                gap: 10px;
+            }
+
+            .home-btn {
+                padding: 8px 15px;
+                font-size: 0.9em;
+            }
+
+            .chapter-selector {
+                display: none !important;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .content-area {
+                padding-top: 80px;
+                padding-bottom: 100px;
+            }
+
+            .verse-card {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .verse-reference {
+                font-size: 1.8em;
+            }
+
+            .verse-text {
+                font-size: 1.2em;
+            }
+
+            .scene-title {
+                font-size: 1.5em;
+            }
+
+            .ascii-art {
+                font-size: 0.8em;
+            }
+
+            .navigation {
+                bottom: 10px;
+                padding: 15px 20px;
+                flex-direction: row;
+                gap: 10px;
+                width: calc(100% - 20px);
+                left: 10px;
+                transform: none;
+            }
+
+            .nav-btn {
+                padding: 12px 20px;
+                font-size: 0.9em;
+                flex: 1;
+            }
+
+            .verse-counter {
+                font-size: 0.9em;
+                padding: 8px 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .verse-reference {
+                font-size: 1.5em;
+            }
+
+            .verse-text {
+                font-size: 1em;
+            }
+
+            .nav-btn {
+                padding: 10px 15px;
+                font-size: 0.85em;
+            }
+
+            .verse-counter {
+                font-size: 0.8em;
+                padding: 6px 10px;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="closeMobileMenu()"></div>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <div class="mobile-menu-title">Navigation</div>
+            <button class="mobile-close-btn" onclick="closeMobileMenu()">&times;</button>
+        </div>
+
+        <div class="mobile-nav-section">
+            <div class="mobile-nav-label">PAGES</div>
+            <div class="mobile-nav-buttons">
+                <a href="index.html" class="mobile-nav-btn">🏠 Home</a>
+                <a href="gallery.html" class="mobile-nav-btn">📚 Gallery</a>
+            </div>
+        </div>
+
+        <div class="mobile-nav-section">
+            <div class="mobile-nav-label">CHAPTERS</div>
+            <div class="mobile-nav-buttons" id="mobileChapterButtons">
+                <!-- Chapter buttons will be added here by JavaScript -->
+            </div>
+        </div>
+    </div>
+
     <div class="header">
         <div class="header-content">
             <a href="index.html" class="home-btn">🏠 Home</a>
+            <button class="mobile-menu-btn" onclick="openMobileMenu()">☰</button>
             <div class="chapter-selector" id="chapterSelector">
                 <span style="opacity: 0.9;">Chapter:</span>
             </div>
@@ -274,6 +486,7 @@
                 if (match) chapters.add(parseInt(match[1]));
             });
 
+            // Desktop chapter selector
             const selector = document.getElementById('chapterSelector');
 
             const allBtn = document.createElement('button');
@@ -289,6 +502,35 @@
                 btn.onclick = () => jumpToChapter(chapter);
                 selector.appendChild(btn);
             });
+
+            // Mobile chapter buttons
+            const mobileSelector = document.getElementById('mobileChapterButtons');
+
+            const mobileAllBtn = document.createElement('button');
+            mobileAllBtn.className = 'mobile-nav-btn active';
+            mobileAllBtn.textContent = 'All Chapters';
+            mobileAllBtn.onclick = () => { jumpToChapter('all'); closeMobileMenu(); };
+            mobileSelector.appendChild(mobileAllBtn);
+
+            Array.from(chapters).sort((a, b) => a - b).forEach(chapter => {
+                const btn = document.createElement('button');
+                btn.className = 'mobile-nav-btn';
+                btn.textContent = `Chapter ${chapter}`;
+                btn.onclick = () => { jumpToChapter(chapter); closeMobileMenu(); };
+                mobileSelector.appendChild(btn);
+            });
+        }
+
+        function openMobileMenu() {
+            document.getElementById('mobileMenu').classList.add('open');
+            document.getElementById('mobileMenuOverlay').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMobileMenu() {
+            document.getElementById('mobileMenu').classList.remove('open');
+            document.getElementById('mobileMenuOverlay').style.display = 'none';
+            document.body.style.overflow = 'auto';
         }
 
         function jumpToChapter(chapter) {
