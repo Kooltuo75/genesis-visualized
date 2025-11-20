@@ -436,6 +436,9 @@
                 });
             }
 
+            // Store filtered frames for modal navigation
+            currentFilteredFrames = filteredFrames;
+
             // Update stats
             if (currentFilter === 'all') {
                 statsEl.innerHTML = `
@@ -482,6 +485,7 @@
         }
 
         let currentModalIndex = 0;
+        let currentFilteredFrames = [];
 
         function openModal(index) {
             currentModalIndex = index;
@@ -490,7 +494,7 @@
         }
 
         function showModalContent() {
-            const frame = framesDatabase.frames[currentModalIndex];
+            const frame = currentFilteredFrames[currentModalIndex];
             const modal = document.getElementById('frameModal');
             const modalContent = document.getElementById('modalContent');
 
@@ -532,8 +536,8 @@
                         style="background: #4CAF50; color: white; border: none; padding: 12px 25px; border-radius: 25px; cursor: pointer; font-size: 1em; font-weight: bold;">
                         ⬅ Previous
                     </button>
-                    <span style="color: #666; padding: 12px 20px;">Verse ${currentModalIndex + 1} of ${framesDatabase.frames.length}</span>
-                    <button onclick="nextModal()" ${currentModalIndex >= framesDatabase.frames.length - 1 ? 'disabled' : ''}
+                    <span style="color: #666; padding: 12px 20px;">Verse ${currentModalIndex + 1} of ${currentFilteredFrames.length}</span>
+                    <button onclick="nextModal()" ${currentModalIndex >= currentFilteredFrames.length - 1 ? 'disabled' : ''}
                         style="background: #4CAF50; color: white; border: none; padding: 12px 25px; border-radius: 25px; cursor: pointer; font-size: 1em; font-weight: bold;">
                         Next ➡
                     </button>
@@ -551,7 +555,7 @@
         }
 
         function nextModal() {
-            if (currentModalIndex < framesDatabase.frames.length - 1) {
+            if (currentModalIndex < currentFilteredFrames.length - 1) {
                 currentModalIndex++;
                 showModalContent();
             }
@@ -579,7 +583,7 @@
         });
 
         async function downloadFrame(index) {
-            const frame = framesDatabase.frames[index];
+            const frame = currentFilteredFrames[index];
             const fileName = frame.reference.replace(/:/g, '_').replace(/ /g, '_') + '.html';
 
             // Convert image to base64 if it exists
