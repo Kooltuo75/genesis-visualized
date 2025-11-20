@@ -521,16 +521,25 @@
             });
         }
 
-        function openMobileMenu() {
-            document.getElementById('mobileMenu').classList.add('open');
-            document.getElementById('mobileMenuOverlay').style.display = 'block';
-            document.body.style.overflow = 'hidden';
+        // Make mobile menu functions globally accessible
+        window.openMobileMenu = function() {
+            const menu = document.getElementById('mobileMenu');
+            const overlay = document.getElementById('mobileMenuOverlay');
+            if (menu && overlay) {
+                menu.classList.add('open');
+                overlay.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            }
         }
 
-        function closeMobileMenu() {
-            document.getElementById('mobileMenu').classList.remove('open');
-            document.getElementById('mobileMenuOverlay').style.display = 'none';
-            document.body.style.overflow = 'auto';
+        window.closeMobileMenu = function() {
+            const menu = document.getElementById('mobileMenu');
+            const overlay = document.getElementById('mobileMenuOverlay');
+            if (menu && overlay) {
+                menu.classList.remove('open');
+                overlay.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
         }
 
         function jumpToChapter(chapter) {
