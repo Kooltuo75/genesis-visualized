@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bible Verse Visualizer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .input-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .verse-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1em;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-family: 'Georgia', serif;
+        }
+
+        .verse-input:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+
+        .instructions {
+            margin-top: 10px;
+            font-size: 0.9em;
+            opacity: 0.9;
+            text-align: center;
+        }
+
+        .visualization-area {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 10px;
+            min-height: 400px;
+            color: #333;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .verse-reference {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2a5298;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #2a5298;
+            padding-bottom: 10px;
+        }
+
+        .verse-text {
+            font-size: 1.1em;
+            font-style: italic;
+            margin-bottom: 25px;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .visual-representation {
+            background: #f5f5f5;
+            padding: 25px;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+            margin-bottom: 20px;
+        }
+
+        .scene-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #4CAF50;
+            margin-bottom: 15px;
+        }
+
+        .ascii-art {
+            font-family: 'Courier New', monospace;
+            white-space: pre;
+            line-height: 1.2;
+            font-size: 0.9em;
+            background: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        .description {
+            font-size: 1.05em;
+            line-height: 1.8;
+            color: #444;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .history {
+            margin-top: 30px;
+        }
+
+        .history-title {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            color: #2a5298;
+        }
+
+        .verse-history-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .verse-history-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bible Verse Visualizer</h1>
+
+        <div class="input-section">
+            <input
+                type="text"
+                class="verse-input"
+                id="verseInput"
+                placeholder="Type a Bible verse (e.g., 'Genesis 1:1 In the beginning God created the heavens and the earth')"
+                autofocus
+            >
+            <div class="instructions">
+                Press ENTER to visualize the verse
+            </div>
+        </div>
+
+        <div class="visualization-area" id="visualizationArea">
+            <div class="empty-state">
+                <div class="empty-state-icon">📖</div>
+                <p>Type a Bible verse above and press ENTER to see it come to life</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const verseInput = document.getElementById('verseInput');
+        const visualizationArea = document.getElementById('visualizationArea');
+
+        verseInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const verseText = this.value.trim();
+                if (verseText) {
+                    visualizeVerse(verseText);
+                }
+            }
+        });
+
+        function visualizeVerse(verseText) {
+            // Parse the verse to extract reference and text
+            const parsed = parseVerse(verseText);
+            const visualization = generateVisualization(parsed);
+
+            visualizationArea.innerHTML = `
+                <div class="verse-reference">${parsed.reference || 'Bible Verse'}</div>
+                <div class="verse-text">"${parsed.text}"</div>
+                ${visualization}
+            `;
+        }
+
+        function parseVerse(input) {
+            // Try to extract book chapter:verse from the beginning
+            const match = input.match(/^([1-3]?\s?[A-Za-z]+)\s+(\d+):(\d+)\s+(.+)$/);
+
+            if (match) {
+                return {
+                    reference: `${match[1]} ${match[2]}:${match[3]}`,
+                    book: match[1],
+                    chapter: match[2],
+                    verse: match[3],
+                    text: match[4]
+                };
+            }
+
+            return {
+                reference: '',
+                text: input
+            };
+        }
+
+        function generateVisualization(parsed) {
+            const text = parsed.text.toLowerCase();
+
+            // Genesis 1:1 - Creation
+            if (text.includes('in the beginning') && text.includes('created')) {
+                return `
+                    <div class="visual-representation">
+                        <div class="scene-title">The Moment of Creation</div>
+                        <div class="ascii-art">
+    ✨        *     ✨        *        ✨
+         *              *         *
+    ✨     *    ✨       *     ✨     *
+
+                🌟  GOD  🌟
+
+    ═══════════════════════════════════════════
+           The Heavens and The Earth
+    ═══════════════════════════════════════════
+
+         🌙  ⭐  ✨  ⭐  🌙  ⭐  ✨
+
+              The Heavens Above
+
+    ～～～～～～～～～～～～～～～～～～～～～～
+         🌊  🌊  🌊  🌊  🌊  🌊
+    🏔️  🌲  🌳    The Earth    🌳  🌲  🏔️
+    ════════════════════════════════════════
+                </div>
+                        <div class="description">
+                            In the beginning, there was nothing but void. Then, in a moment of infinite power
+                            and creativity, God spoke existence into being. The vast expanse of the heavens
+                            stretched out above, filled with countless stars and celestial wonders. Below,
+                            the earth took form - a canvas upon which the story of creation would unfold.
+                            <br><br>
+                            This is the very first moment - the divine origin of all that exists.
+                            Time itself begins here, as the Creator brings light, matter, and possibility
+                            into reality from absolute nothingness.
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Genesis 1:2 - Spirit hovering
+            if (text.includes('spirit') && text.includes('hovering') || text.includes('waters')) {
+                return `
+                    <div class="visual-representation">
+                        <div class="scene-title">The Spirit Hovering Over the Waters</div>
+                        <div class="ascii-art">
+            ～ ～ ～   🕊️  Spirit of God  🕊️   ～ ～ ～
+              ～     hovering over the waters    ～
+
+         ═══════════════════════════════════════════
+                The Earth: formless and empty
+         ═══════════════════════════════════════════
+
+         🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊
+         💧 Deep Waters - Dark and Mysterious 💧
+         🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊
+
+              Darkness over the surface
+                   of the deep
+                </div>
+                        <div class="description">
+                            The earth exists, but it is without form - a chaotic, empty void covered in
+                            darkness. Vast, deep waters stretch endlessly in all directions. Above this
+                            primordial ocean, the Spirit of God hovers like a dove, moving gently across
+                            the surface of the deep waters, preparing for the work of creation that is
+                            about to unfold.
+                            <br><br>
+                            This is a moment of divine presence in the midst of chaos - the calm before
+                            the creative storm, as God prepares to bring order, light, and life to the
+                            formless void.
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Genesis 1:3 - Let there be light
+            if (text.includes('let there be light') || (text.includes('light') && text.includes('god said'))) {
+                return `
+                    <div class="visual-representation">
+                        <div class="scene-title">Let There Be Light!</div>
+                        <div class="ascii-art">
+                    "Let there be light"
+                              ⚡
+
+         ✨                 🌟                 ✨
+              ✨         ☀️  LIGHT  ☀️      ✨
+         ✨       ⭐️               ⭐️        ✨
+
+    ═══════════════════════════════════════════════
+
+         🌅  ☀️  💫  ⭐  ✨  ⭐  💫  ☀️  🌅
+
+    Darkness ▓▓▓▓▓░░░░░░░░░░░░░░░▓▓▓▓▓ Light
+
+         "And there was light"
+
+    ═══════════════════════════════════════════════
+                </div>
+                        <div class="description">
+                            With divine words, God speaks: "Let there be light!" - and in an instant,
+                            brilliant, pure light bursts forth into existence, piercing through the
+                            primordial darkness. This is not the light of the sun or stars (which don't
+                            exist yet), but the fundamental essence of light itself - the first created
+                            thing, the beginning of order emerging from chaos.
+                            <br><br>
+                            The darkness is pushed back, and for the first time, there is illumination.
+                            God's first creative command demonstrates His absolute power - He speaks,
+                            and reality obeys. Light becomes the foundation for all that follows,
+                            making visibility, time, and life itself possible.
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Default visualization for any verse
+            return `
+                <div class="visual-representation">
+                    <div class="scene-title">Biblical Scene</div>
+                    <div class="ascii-art">
+            📖  ═══════════════════════  📖
+
+                  ⛪  🕊️  ✝️  🕊️  ⛪
+
+                  The Word of God
+
+            📖  ═══════════════════════  📖
+                    </div>
+                    <div class="description">
+                        ${generateGenericDescription(parsed.text)}
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateGenericDescription(text) {
+            // Analyze the text for common biblical themes
+            const lower = text.toLowerCase();
+
+            if (lower.includes('god') || lower.includes('lord')) {
+                return `This verse speaks of the divine presence and power of God. The words remind us
+                        of God's sovereignty and His active role in the lives of His people and in the
+                        course of history.`;
+            }
+
+            if (lower.includes('love') || lower.includes('beloved')) {
+                return `A verse centered on love - the greatest of all virtues. Whether it's God's
+                        love for humanity or the love we're called to show one another, this passage
+                        reveals the heart of the biblical message.`;
+            }
+
+            if (lower.includes('faith') || lower.includes('believe')) {
+                return `This passage speaks to the importance of faith and belief. Throughout scripture,
+                        faith is portrayed as the bridge between humanity and the divine, the trust that
+                        makes relationship with God possible.`;
+            }
+
+            return `This verse contains important biblical truth and wisdom. Each word of scripture
+                    carries meaning and significance, revealing God's character, His plan, and His
+                    relationship with His creation. Meditate on these words to discover their deeper
+                    meaning.`;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,2265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bible Verse Visualizer - Live</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .status {
+            position: fixed;
+            top: 60px;
+            right: 10px;
+            font-size: 0.8em;
+            opacity: 0.5;
+            z-index: 100;
+            background: rgba(0,0,0,0.5);
+            padding: 5px 10px;
+            border-radius: 10px;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            background: rgba(0,0,0,0.7);
+            padding: 15px 25px;
+            border-radius: 50px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+
+        .nav-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .frame-info {
+            color: white;
+            font-size: 0.9em;
+            padding: 5px 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+        }
+
+        .gallery-btn {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .edit-btn {
+            background: #FF9800;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .edit-btn:hover {
+            background: #F57C00;
+            transform: scale(1.05);
+        }
+
+        /* Edit Modal Styles */
+        .edit-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            overflow: auto;
+        }
+
+        .edit-modal-content {
+            background: #1a1a2e;
+            margin: 20px auto;
+            padding: 30px;
+            width: 95%;
+            max-width: 1800px;
+            border-radius: 15px;
+            color: #fff;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 1200px) {
+            .ascii-editor-container {
+                flex-direction: column;
+            }
+            .ascii-preview {
+                max-height: 300px;
+            }
+        }
+
+        .edit-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
+
+        .edit-modal-header h2 {
+            color: #FF9800;
+        }
+
+        .close-modal {
+            color: #aaa;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close-modal:hover {
+            color: #fff;
+        }
+
+        .edit-section {
+            margin-bottom: 25px;
+        }
+
+        .edit-section label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #4CAF50;
+            font-size: 1.1em;
+        }
+
+        .edit-section input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #333;
+            border-radius: 8px;
+            background: #16213e;
+            color: #fff;
+            font-size: 1em;
+        }
+
+        .edit-section textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #333;
+            border-radius: 8px;
+            background: #16213e;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            resize: vertical;
+        }
+
+        .ascii-textarea {
+            min-height: 300px;
+            line-height: 1.4;
+            font-size: 1em;
+        }
+
+        .ascii-editor-container {
+            display: flex;
+            gap: 20px;
+            align-items: stretch;
+        }
+
+        .ascii-editor-left {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ascii-editor-right {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ascii-preview-label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #2196F3;
+            font-size: 1.1em;
+        }
+
+        .ascii-preview {
+            font-family: 'Courier New', monospace;
+            white-space: pre;
+            line-height: 1.4;
+            font-size: 1.2em;
+            background: #fff;
+            color: #000;
+            padding: 30px;
+            border-radius: 8px;
+            overflow: auto;
+            min-height: 300px;
+            max-height: 500px;
+            text-align: center;
+            border: 2px solid #4CAF50;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .prompt-textarea {
+            min-height: 100px;
+        }
+
+        .edit-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .edit-actions button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .save-btn {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .save-btn:hover {
+            background: #45a049;
+        }
+
+        .regenerate-btn {
+            background: #9C27B0;
+            color: white;
+        }
+
+        .regenerate-btn:hover {
+            background: #7B1FA2;
+        }
+
+        .cancel-btn {
+            background: #666;
+            color: white;
+        }
+
+        .cancel-btn:hover {
+            background: #555;
+        }
+
+        .status-message {
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .status-message.success {
+            background: #1b5e20;
+            color: #a5d6a7;
+            display: block;
+        }
+
+        .status-message.error {
+            background: #b71c1c;
+            color: #ffcdd2;
+            display: block;
+        }
+
+        .status-message.loading {
+            background: #0d47a1;
+            color: #90caf9;
+            display: block;
+        }
+
+        .verse-preview {
+            background: #16213e;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196F3;
+        }
+
+        .verse-preview .reference {
+            font-weight: bold;
+            color: #2196F3;
+            font-size: 1.2em;
+        }
+
+        .verse-preview .text {
+            font-style: italic;
+            color: #ccc;
+            margin-top: 8px;
+        }
+
+        /* Version History Styles */
+        .version-section {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+        }
+
+        .version-section h3 {
+            color: #FF9800;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .version-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .version-card {
+            background: #16213e;
+            border: 2px solid #333;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 280px;
+        }
+
+        .version-card:hover {
+            border-color: #FF9800;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(255, 152, 0, 0.3);
+        }
+
+        .version-card.current {
+            border-color: #4CAF50;
+            background: #1b3a1b;
+        }
+
+        .version-card.selected {
+            border-color: #2196F3;
+            background: #1a365d;
+            box-shadow: 0 0 15px rgba(33, 150, 243, 0.4);
+        }
+
+        .version-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .version-number {
+            font-weight: bold;
+            color: #fff;
+            font-size: 1.1em;
+        }
+
+        .version-date {
+            font-size: 0.75em;
+            color: #888;
+        }
+
+        .version-title {
+            font-size: 0.9em;
+            color: #4CAF50;
+            margin-bottom: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .version-previews {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .version-image-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #0a0a15;
+            flex-shrink: 0;
+        }
+
+        .version-image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .version-image-preview .no-image {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #555;
+            font-size: 0.7em;
+            text-align: center;
+        }
+
+        .version-ascii-preview {
+            flex: 1;
+            background: #fff;
+            color: #000;
+            border-radius: 6px;
+            padding: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.35em;
+            line-height: 1.2;
+            white-space: pre;
+            overflow: hidden;
+            max-height: 100px;
+            text-align: center;
+        }
+
+        .version-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7em;
+            margin-left: 5px;
+        }
+
+        .version-badge.current {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .version-badge.has-image {
+            background: #2196F3;
+            color: white;
+        }
+
+        .version-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .restore-btn {
+            background: #FF5722;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .restore-btn:hover {
+            background: #E64A19;
+        }
+
+        .restore-btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
+        .no-versions {
+            color: #666;
+            font-style: italic;
+        }
+
+        /* Fullscreen Image Modal */
+        .fullscreen-modal {
+            display: none;
+            position: fixed;
+            z-index: 3000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.95);
+            cursor: pointer;
+        }
+
+        .fullscreen-modal img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 95%;
+            max-height: 95%;
+            object-fit: contain;
+            border-radius: 5px;
+        }
+
+        .fullscreen-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+            z-index: 3001;
+        }
+
+        .fullscreen-close:hover {
+            color: #4CAF50;
+        }
+
+        /* Download Buttons */
+        .download-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .download-btn {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: bold;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .download-btn:hover {
+            background: #0b7dda;
+            transform: translateY(-2px);
+        }
+
+        .download-btn.orange {
+            background: #FF9800;
+        }
+
+        .download-btn.orange:hover {
+            background: #F57C00;
+        }
+
+        .download-btn.purple {
+            background: #9C27B0;
+        }
+
+        .download-btn.purple:hover {
+            background: #7B1FA2;
+        }
+
+        /* Chapter Navigation Header */
+        .chapter-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(10px);
+            padding: 12px 20px;
+            z-index: 1001;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            overflow: visible;
+        }
+
+        .chapter-nav-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .home-link {
+            background: #4CAF50;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.95em;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .home-link:hover {
+            background: #45a049;
+        }
+
+        .chapter-buttons {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .chapter-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.3s;
+            position: relative;
+            z-index: 1;
+        }
+
+        .chapter-btn:hover {
+            background: rgba(255,255,255,0.4);
+            transform: scale(1.05);
+        }
+
+        .chapter-btn.active {
+            background: #4CAF50;
+        }
+
+        .chapter-label {
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9em;
+            flex-shrink: 0;
+        }
+
+        /* Clickable image */
+        .hd-image {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .hd-image:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        }
+
+        /* Pan-Zoom Viewer Modal */
+        .zoom-viewer {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 10000;
+            cursor: grab;
+        }
+
+        .zoom-viewer.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .zoom-viewer.grabbing {
+            cursor: grabbing;
+        }
+
+        .zoom-viewer-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .zoom-viewer-image {
+            position: absolute;
+            max-width: none;
+            max-height: none;
+            transform-origin: 0 0;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        .zoom-controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10001;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px 25px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+        }
+
+        .zoom-btn {
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 50%;
+            background: #4CAF50;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .zoom-btn:hover {
+            background: #45a049;
+            transform: scale(1.1);
+        }
+
+        .zoom-btn.close-btn {
+            background: #f44336;
+        }
+
+        .zoom-btn.close-btn:hover {
+            background: #d32f2f;
+        }
+
+        .zoom-btn.reset-btn {
+            background: #2196F3;
+        }
+
+        .zoom-level {
+            color: white;
+            font-size: 18px;
+            min-width: 80px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .zoom-hint-text {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+            z-index: 10001;
+        }
+
+        /* Adjust visualization area for header and bottom nav */
+        .visualization-area {
+            margin-top: 70px;
+            padding-bottom: 120px;
+        }
+
+        .hd-image-container {
+            margin-bottom: 30px;
+        }
+
+        .download-buttons {
+            margin-bottom: 80px;
+        }
+
+        .gallery-btn:hover {
+            background: #0b7dda;
+            transform: scale(1.05);
+        }
+
+        /* Auth Status Styles */
+        .auth-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: 10px;
+        }
+
+        .login-link {
+            color: white;
+            text-decoration: none;
+            background: #9C27B0;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.95em;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .login-link:hover {
+            background: #7B1FA2;
+            transform: scale(1.05);
+        }
+
+        .user-badge {
+            background: #4CAF50;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-badge .username {
+            font-weight: bold;
+        }
+
+        .user-badge .logout-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: background 0.3s;
+        }
+
+        .user-badge .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .visualization-area {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.98);
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            animation: fadeIn 0.8s;
+            overflow: auto;
+        }
+
+        .verse-reference {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2a5298;
+            margin-bottom: 15px;
+            animation: slideIn 0.6s;
+            text-align: center;
+        }
+
+        .verse-text {
+            font-size: 1.5em;
+            font-style: italic;
+            margin-bottom: 30px;
+            line-height: 1.8;
+            color: #555;
+            text-align: center;
+            max-width: 90%;
+            animation: slideIn 0.7s;
+        }
+
+        .visual-representation {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            animation: fadeIn 0.9s;
+        }
+
+        .scene-title {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4CAF50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .visuals-container {
+            display: flex;
+            gap: 30px;
+            width: 100%;
+            max-width: 95%;
+            justify-content: center;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .ascii-art {
+            font-family: 'Courier New', monospace;
+            white-space: pre;
+            line-height: 1.4;
+            font-size: 1.4em;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            overflow-x: auto;
+            animation: fadeIn 1s;
+            text-align: center;
+            flex: 1;
+            min-width: 400px;
+        }
+
+        .hd-image-container {
+            flex: 1;
+            min-width: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeIn 1.2s;
+        }
+
+        .hd-image {
+            width: 100%;
+            max-width: 1024px;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .image-loading {
+            text-align: center;
+            padding: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: #666;
+        }
+
+        .loading-spinner {
+            font-size: 3em;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 8em;
+            margin-bottom: 30px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .update-indicator {
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 30px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            font-size: 1.2em;
+            z-index: 100;
+        }
+
+        .update-indicator.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Chapter Navigation Header -->
+    <div class="chapter-nav">
+        <div class="chapter-nav-content">
+            <a href="index.html" class="home-link">🏠 Home</a>
+            <div class="chapter-buttons" id="chapterButtons">
+                <span class="chapter-label">Chapter:</span>
+                <!-- Chapter buttons will be added by JavaScript -->
+            </div>
+            <a href="gallery.html" class="home-link" style="background: #2196F3;">📚 Gallery</a>
+        </div>
+    </div>
+
+    <!-- Fullscreen Image Modal -->
+    <div id="fullscreenModal" class="fullscreen-modal" onclick="closeFullscreen()">
+        <span class="fullscreen-close">&times;</span>
+        <img id="fullscreenImage" src="" alt="Fullscreen view">
+    </div>
+
+    <!-- Pan-Zoom Viewer Modal -->
+    <div id="zoomViewer" class="zoom-viewer">
+        <div class="zoom-hint-text">Scroll to zoom | Drag to pan | ESC to close</div>
+        <div class="zoom-viewer-container" id="zoomContainer">
+            <img id="zoomImage" class="zoom-viewer-image" src="" alt="Zoom view">
+        </div>
+        <div class="zoom-controls">
+            <button class="zoom-btn" onclick="zoomOut()" title="Zoom Out">−</button>
+            <div class="zoom-level" id="zoomLevel">100%</div>
+            <button class="zoom-btn" onclick="zoomIn()" title="Zoom In">+</button>
+            <button class="zoom-btn reset-btn" onclick="resetZoomView()" title="Reset">⟲</button>
+            <button class="zoom-btn close-btn" onclick="closeZoomViewer()" title="Close">✕</button>
+        </div>
+    </div>
+
+    <div class="update-indicator" id="updateIndicator">✨ Updated!</div>
+    <div class="status" id="status">🔴 Connecting...</div>
+
+    <div class="navigation">
+        <button class="nav-btn" onclick="goToBeginning()">|← Begin</button>
+        <button class="nav-btn" id="prevBtn" onclick="previousFrame()">← Prev</button>
+        <div class="frame-info" id="frameInfo">Frame 1 of 1</div>
+        <button class="nav-btn" id="nextBtn" onclick="nextFrame()">Next →</button>
+        <button class="nav-btn" onclick="goToEnd()">End →|</button>
+        <button class="edit-btn" id="editBtn" onclick="openEditModal()" style="display: none;">✏️ Edit</button>
+        <button class="gallery-btn" onclick="window.open('gallery.html', '_blank')">📚 Gallery</button>
+        <div class="auth-status" id="authStatus">
+            <a href="login.html" class="login-link" id="loginLink">🔐 Login</a>
+            <span class="user-badge" id="userBadge" style="display: none;"></span>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="edit-modal">
+        <div class="edit-modal-content">
+            <div class="edit-modal-header">
+                <h2>✏️ Edit Frame <span id="editFrameId"></span></h2>
+                <span class="close-modal" onclick="closeEditModal()">&times;</span>
+            </div>
+
+            <div class="verse-preview">
+                <div class="reference" id="editReference"></div>
+                <div class="text" id="editVerseText"></div>
+            </div>
+
+            <div class="edit-section">
+                <label>Title</label>
+                <input type="text" id="editTitle" placeholder="Scene title...">
+            </div>
+
+            <div class="edit-section">
+                <label>ASCII Art (with Live Preview)</label>
+                <div class="ascii-editor-container">
+                    <div class="ascii-editor-left">
+                        <textarea id="editAscii" class="ascii-textarea" placeholder="ASCII art visualization..." oninput="updateAsciiPreview()"></textarea>
+                    </div>
+                    <div class="ascii-editor-right">
+                        <span class="ascii-preview-label">Preview (exactly as it will appear):</span>
+                        <div id="asciiPreview" class="ascii-preview"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="edit-section">
+                <label>Image Prompt (for DALL-E 3)</label>
+                <textarea id="editPrompt" class="prompt-textarea" placeholder="Describe the image to generate..."></textarea>
+            </div>
+
+            <div class="edit-actions">
+                <button class="save-btn" onclick="saveChanges()">💾 Save New Version</button>
+                <button class="regenerate-btn" onclick="regenerateImage()">🎨 Regenerate Image</button>
+                <button class="cancel-btn" onclick="closeEditModal()">Cancel</button>
+            </div>
+
+            <div id="editStatus" class="status-message"></div>
+
+            <!-- Version History Section -->
+            <div class="version-section">
+                <h3>📜 Version History <span id="versionCount"></span></h3>
+                <div id="versionList" class="version-list">
+                    <p class="no-versions">Loading versions...</p>
+                </div>
+                <div class="version-actions">
+                    <button class="restore-btn" id="restoreBtn" onclick="restoreSelectedVersion()" disabled>
+                        ↩️ Restore Selected Version
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="visualization-area" id="visualizationArea">
+            <div class="empty-state">
+                <div class="empty-state-icon">📖</div>
+                <p style="font-size: 2em;">Waiting for first verse...</p>
+                <p style="margin-top: 15px; opacity: 0.7; font-size: 1.2em;">Type a verse in the chat with Claude</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let lastData = null;
+        let framesDatabase = null;
+        let currentFrameIndex = 0;
+        let isLiveMode = false; // Start in browsing mode
+        let initialLoadDone = false;
+        let imageCacheBuster = Date.now(); // Used to force image refresh after regeneration
+
+        // Authentication state
+        let currentUser = null;
+        let authToken = localStorage.getItem('authToken');
+
+        // API base URL - works locally and when deployed
+        const API_BASE = window.location.origin;
+
+        const visualizationArea = document.getElementById('visualizationArea');
+
+        // ================================================================
+        // AUTHENTICATION FUNCTIONS
+        // ================================================================
+
+        async function checkAuth() {
+            if (!authToken) {
+                showLoggedOut();
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.authenticated) {
+                        currentUser = { username: data.username, role: data.role };
+                        showLoggedIn(data.username, data.role);
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.error('Auth check failed:', e);
+            }
+
+            // Token invalid or expired
+            localStorage.removeItem('authToken');
+            authToken = null;
+            showLoggedOut();
+        }
+
+        function showLoggedIn(username, role) {
+            document.getElementById('loginLink').style.display = 'none';
+            const badge = document.getElementById('userBadge');
+            badge.style.display = 'flex';
+            badge.innerHTML = `
+                <span class="username">${username}</span>
+                ${role === 'admin' ? '👑' : '✏️'}
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            `;
+            document.getElementById('editBtn').style.display = 'block';
+        }
+
+        function showLoggedOut() {
+            document.getElementById('loginLink').style.display = 'block';
+            document.getElementById('userBadge').style.display = 'none';
+            document.getElementById('editBtn').style.display = 'none';
+            currentUser = null;
+        }
+
+        async function logout() {
+            if (authToken) {
+                try {
+                    await fetch(`${API_BASE}/api/auth/logout`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${authToken}` }
+                    });
+                } catch (e) {}
+            }
+            localStorage.removeItem('authToken');
+            authToken = null;
+            showLoggedOut();
+        }
+
+        function getAuthHeaders() {
+            if (authToken) {
+                return { 'Authorization': `Bearer ${authToken}` };
+            }
+            return {};
+        }
+        const statusEl = document.getElementById('status');
+        const updateIndicator = document.getElementById('updateIndicator');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const frameInfo = document.getElementById('frameInfo');
+
+        async function loadFramesDatabase() {
+            try {
+                const response = await fetch('frames-database.json?t=' + Date.now());
+                framesDatabase = await response.json();
+                updateNavigationButtons();
+
+                // On first load, show the saved frame
+                if (!initialLoadDone && framesDatabase && framesDatabase.frames.length > 0) {
+                    initialLoadDone = true;
+                    showFrame(currentFrameIndex);
+                }
+            } catch (error) {
+                console.error('Error loading frames database:', error);
+            }
+        }
+
+        async function loadVerseData() {
+            // Skip polling when user is navigating (not in live mode)
+            if (!isLiveMode) {
+                statusEl.textContent = '⏸️ Browsing';
+                statusEl.style.opacity = '0.4';
+                return;
+            }
+
+            try {
+                const response = await fetch('verse-data.json?t=' + Date.now());
+                const data = await response.json();
+
+                if (JSON.stringify(data) !== JSON.stringify(lastData)) {
+                    lastData = data;
+                    updateVisualization(data);
+                    showUpdateIndicator();
+                    // Only reload database when new content arrives
+                    await loadFramesDatabase();
+                }
+
+                statusEl.textContent = '🟢 Live';
+                statusEl.style.opacity = '0.4';
+            } catch (error) {
+                statusEl.textContent = '🔴 Error';
+                console.error('Error loading verse data:', error);
+            }
+        }
+
+        function showUpdateIndicator() {
+            updateIndicator.classList.add('show');
+            setTimeout(() => {
+                updateIndicator.classList.remove('show');
+            }, 2000);
+        }
+
+        function updateVisualization(data) {
+            const { reference, text, visualization } = data;
+
+            if (!reference && !text) {
+                visualizationArea.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📖</div>
+                        <p style="font-size: 2em;">${visualization.scene}</p>
+                        <p style="margin-top: 15px; opacity: 0.7; font-size: 1.2em;">${visualization.description}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+
+            if (reference) {
+                html += `<div class="verse-reference">${reference}</div>`;
+            }
+
+            if (text) {
+                html += `<div class="verse-text">"${text}"</div>`;
+            }
+
+            html += `
+                <div class="visual-representation">
+                    <div class="scene-title">${visualization.title}</div>
+                    <div class="visuals-container">
+            `;
+
+            // ASCII Art section
+            if (visualization.asciiArt) {
+                html += `<div class="ascii-art">${visualization.asciiArt}</div>`;
+            }
+
+            // HD Image section
+            if (visualization.imagePath) {
+                const safeRef = reference.replace(/:/g, '_').replace(/ /g, '_');
+                const imgSrc = `${visualization.imagePath}?t=${imageCacheBuster}`;
+                html += `
+                    <div class="hd-image-container">
+                        <img src="${imgSrc}"
+                             alt="${reference}"
+                             class="hd-image"
+                             onclick="openZoomViewer('${imgSrc}')"
+                             title="Click to open zoom viewer"
+                             onerror="this.parentElement.innerHTML='<div class=\\'image-loading\\'>Image not available</div>'"">
+                        <div class="download-buttons">
+                            <a href="${visualization.imagePath}" download="${safeRef}.png" class="download-btn">
+                                ⬇️ Download Image
+                            </a>
+                            <button onclick="downloadAscii()" class="download-btn orange">
+                                📝 Download ASCII
+                            </button>
+                            <button onclick="downloadFrame()" class="download-btn purple">
+                                📥 Download Full Frame
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="hd-image-container">
+                        <div class="image-loading">
+                            <div class="loading-spinner">🎨</div>
+                            <p>Generating HD image...</p>
+                        </div>
+                        <div class="download-buttons">
+                            <button onclick="downloadAscii()" class="download-btn orange">
+                                📝 Download ASCII
+                            </button>
+                            <button onclick="downloadFrame()" class="download-btn purple">
+                                📥 Download Full Frame
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += `</div></div>`;
+
+            visualizationArea.innerHTML = html;
+        }
+
+        let initialized = false;
+
+        // ================================================================
+        // COOKIE FUNCTIONS - Remember user's position
+        // ================================================================
+
+        function setCookie(name, value, days = 365) {
+            const expires = new Date(Date.now() + days * 864e5).toUTCString();
+            document.cookie = `${name}=${value}; expires=${expires}; path=/; SameSite=Lax`;
+        }
+
+        function getCookie(name) {
+            const cookies = document.cookie.split('; ');
+            for (const cookie of cookies) {
+                const [cookieName, cookieValue] = cookie.split('=');
+                if (cookieName === name) {
+                    return cookieValue;
+                }
+            }
+            return null;
+        }
+
+        function savePosition() {
+            setCookie('genesisFrameIndex', currentFrameIndex);
+        }
+
+        function loadSavedPosition() {
+            const saved = getCookie('genesisFrameIndex');
+            if (saved !== null) {
+                const index = parseInt(saved, 10);
+                if (!isNaN(index) && index >= 0) {
+                    return index;
+                }
+            }
+            return 0; // Default to frame 1 (index 0)
+        }
+
+        function updateNavigationButtons() {
+            if (!framesDatabase || framesDatabase.frames.length === 0) {
+                prevBtn.disabled = true;
+                nextBtn.disabled = true;
+                frameInfo.textContent = 'No frames yet';
+                return;
+            }
+
+            const totalFrames = framesDatabase.totalFrames;
+
+            // Only set currentFrameIndex on first load - use saved position or start at frame 1
+            if (!initialized) {
+                const savedIndex = loadSavedPosition();
+                // Make sure saved index is valid
+                currentFrameIndex = Math.min(savedIndex, totalFrames - 1);
+                isLiveMode = false; // Start in browsing mode, not live mode
+                initialized = true;
+            }
+
+            frameInfo.textContent = `Frame ${currentFrameIndex + 1} of ${totalFrames}`;
+
+            prevBtn.disabled = currentFrameIndex === 0;
+            nextBtn.disabled = currentFrameIndex >= totalFrames - 1;
+        }
+
+        function previousFrame() {
+            if (!framesDatabase || currentFrameIndex === 0) return;
+
+            isLiveMode = false;
+            currentFrameIndex--;
+            showFrame(currentFrameIndex);
+        }
+
+        function nextFrame() {
+            if (!framesDatabase || currentFrameIndex >= framesDatabase.totalFrames - 1) return;
+
+            currentFrameIndex++;
+            if (currentFrameIndex === framesDatabase.totalFrames - 1) {
+                isLiveMode = true;
+            }
+            showFrame(currentFrameIndex);
+        }
+
+        function goToBeginning() {
+            if (!framesDatabase) return;
+            isLiveMode = false;
+            currentFrameIndex = 0;
+            showFrame(currentFrameIndex);
+        }
+
+        function goToEnd() {
+            if (!framesDatabase) return;
+            isLiveMode = true;
+            currentFrameIndex = framesDatabase.totalFrames - 1;
+            showFrame(currentFrameIndex);
+        }
+
+        function showFrame(index) {
+            const frame = framesDatabase.frames[index];
+            updateVisualization({
+                reference: frame.reference,
+                text: frame.text,
+                visualization: frame.visualization
+            });
+            updateNavigationButtons();
+            preloadAdjacentImages(index);
+            savePosition(); // Remember this position
+        }
+
+        // Preload images for smoother navigation
+        const preloadedImages = new Set();
+
+        function preloadAdjacentImages(index) {
+            if (!framesDatabase) return;
+
+            // Preload next 3 and previous 3 frames
+            const framesToPreload = [-3, -2, -1, 1, 2, 3];
+
+            framesToPreload.forEach(offset => {
+                const targetIndex = index + offset;
+                if (targetIndex >= 0 && targetIndex < framesDatabase.frames.length) {
+                    const frame = framesDatabase.frames[targetIndex];
+                    const imagePath = frame.visualization?.imagePath;
+
+                    if (imagePath && !preloadedImages.has(imagePath)) {
+                        const img = new Image();
+                        img.src = imagePath;
+                        preloadedImages.add(imagePath);
+                    }
+                }
+            });
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            // Don't trigger navigation when editing in modal
+            if (document.getElementById('editModal').style.display === 'block') {
+                if (e.key === 'Escape') closeEditModal();
+                return;
+            }
+            if (e.key === 'ArrowLeft') previousFrame();
+            if (e.key === 'ArrowRight') nextFrame();
+            if (e.key === 'Home') goToBeginning();
+            if (e.key === 'End') goToEnd();
+            if (e.key === 'e' || e.key === 'E') openEditModal();
+        });
+
+        // ================================================================
+        // EDIT MODAL FUNCTIONS
+        // ================================================================
+
+        let currentEditFrameId = null;
+        let selectedVersionNumber = null;
+        let versionsData = [];
+
+        function updateAsciiPreview() {
+            const ascii = document.getElementById('editAscii').value;
+            const preview = document.getElementById('asciiPreview');
+            preview.textContent = ascii;
+        }
+
+        async function openEditModal() {
+            if (!framesDatabase || framesDatabase.frames.length === 0) return;
+
+            // Require authentication to edit
+            if (!currentUser) {
+                alert('Please login to edit frames.');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const frame = framesDatabase.frames[currentFrameIndex];
+            currentEditFrameId = frame.id;
+            selectedVersionNumber = null;
+
+            // Show modal
+            document.getElementById('editModal').style.display = 'block';
+
+            // Set basic info
+            document.getElementById('editFrameId').textContent = `#${frame.id}`;
+            document.getElementById('editReference').textContent = frame.reference;
+            document.getElementById('editVerseText').textContent = `"${frame.text}"`;
+            document.getElementById('editTitle').value = frame.visualization.title || '';
+            document.getElementById('editAscii').value = frame.visualization.asciiArt || '';
+            updateAsciiPreview();
+
+            // Reset version UI
+            document.getElementById('versionList').innerHTML = '<p class="no-versions">Loading versions...</p>';
+            document.getElementById('versionCount').textContent = '';
+            document.getElementById('restoreBtn').disabled = true;
+
+            // Fetch full data including prompt from API
+            setEditStatus('loading', 'Loading frame data...');
+            try {
+                const response = await fetch(`${API_BASE}/api/frame/${frame.id}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('editPrompt').value = data.imagePrompt || '';
+                    setEditStatus('', '');
+
+                    // Load version history
+                    loadVersionHistory();
+                } else {
+                    // Fallback: generate default prompt
+                    document.getElementById('editPrompt').value =
+                        `Biblical scene depicting: ${frame.text}. Epic, cinematic, highly detailed, divine lighting, religious art style, 8k quality`;
+                    setEditStatus('', '');
+                    document.getElementById('versionList').innerHTML = '<p class="no-versions">No version history yet</p>';
+                }
+            } catch (e) {
+                // API not running, use default
+                document.getElementById('editPrompt').value =
+                    `Biblical scene depicting: ${frame.text}. Epic, cinematic, highly detailed, divine lighting, religious art style, 8k quality`;
+                setEditStatus('error', 'API server not running. Start with: python api_server.py');
+                document.getElementById('versionList').innerHTML = '<p class="no-versions">API offline</p>';
+            }
+        }
+
+        async function loadVersionHistory() {
+            if (!currentEditFrameId) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/frame/${currentEditFrameId}/versions`);
+                if (response.ok) {
+                    const data = await response.json();
+                    versionsData = data.versions || [];
+                    renderVersionList();
+                }
+            } catch (e) {
+                document.getElementById('versionList').innerHTML = '<p class="no-versions">Could not load versions</p>';
+            }
+        }
+
+        function renderVersionList() {
+            const container = document.getElementById('versionList');
+            const countSpan = document.getElementById('versionCount');
+
+            if (versionsData.length === 0) {
+                container.innerHTML = '<p class="no-versions">No version history yet. Save changes to create your first version.</p>';
+                countSpan.textContent = '';
+                return;
+            }
+
+            countSpan.textContent = `(${versionsData.length} version${versionsData.length > 1 ? 's' : ''})`;
+
+            let html = '';
+            versionsData.forEach(v => {
+                const date = v.timestamp ? new Date(v.timestamp).toLocaleDateString() : 'Unknown';
+                const time = v.timestamp ? new Date(v.timestamp).toLocaleTimeString() : '';
+                const isSelected = selectedVersionNumber === v.version;
+
+                // Truncate ASCII art for preview (first ~15 lines)
+                const asciiPreview = v.asciiArt ? v.asciiArt.split('\n').slice(0, 15).join('\n') : '(no ASCII art)';
+
+                // Image preview with cache busting
+                const imgSrc = v.imagePath ? `${v.imagePath}?t=${imageCacheBuster}` : '';
+
+                html += `
+                    <div class="version-card ${v.isCurrent ? 'current' : ''} ${isSelected ? 'selected' : ''}"
+                         onclick="selectVersion(${v.version}, ${v.isCurrent})">
+                        <div class="version-header">
+                            <div class="version-number">
+                                v${v.version}
+                                ${v.isCurrent ? '<span class="version-badge current">CURRENT</span>' : ''}
+                            </div>
+                            <div class="version-date">${date}<br>${time}</div>
+                        </div>
+                        <div class="version-title">${v.title || '(no title)'}</div>
+                        <div class="version-previews">
+                            <div class="version-image-preview">
+                                ${v.imagePath
+                                    ? `<img src="${imgSrc}" alt="v${v.version}">`
+                                    : '<div class="no-image">No image</div>'
+                                }
+                            </div>
+                            <div class="version-ascii-preview">${escapeHtml(asciiPreview)}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function selectVersion(versionNumber, isCurrent) {
+            if (isCurrent) {
+                // Can't restore current version
+                selectedVersionNumber = null;
+                document.getElementById('restoreBtn').disabled = true;
+            } else {
+                selectedVersionNumber = versionNumber;
+                document.getElementById('restoreBtn').disabled = false;
+            }
+            renderVersionList();
+        }
+
+        async function restoreSelectedVersion() {
+            if (!currentEditFrameId || !selectedVersionNumber) return;
+
+            if (!confirm(`Restore version ${selectedVersionNumber}? The current version will be saved to history.`)) {
+                return;
+            }
+
+            setEditStatus('loading', `Restoring version ${selectedVersionNumber}...`);
+
+            try {
+                const response = await fetch(`${API_BASE}/api/frame/${currentEditFrameId}/restore`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...getAuthHeaders()
+                    },
+                    body: JSON.stringify({ version: selectedVersionNumber })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    setEditStatus('success', `Restored version ${selectedVersionNumber}!`);
+
+                    // Reload frame data and version history
+                    await loadFramesDatabase();
+                    showFrame(currentFrameIndex);
+
+                    // Refresh modal with new data
+                    const frame = framesDatabase.frames[currentFrameIndex];
+                    document.getElementById('editTitle').value = frame.visualization.title || '';
+                    document.getElementById('editAscii').value = frame.visualization.asciiArt || '';
+
+                    const frameResponse = await fetch(`${API_BASE}/api/frame/${currentEditFrameId}`);
+                    if (frameResponse.ok) {
+                        const data = await frameResponse.json();
+                        document.getElementById('editPrompt').value = data.imagePrompt || '';
+                    }
+
+                    selectedVersionNumber = null;
+                    await loadVersionHistory();
+                } else {
+                    setEditStatus('error', result.error || 'Failed to restore version');
+                }
+            } catch (e) {
+                setEditStatus('error', 'Failed to restore version');
+            }
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+            currentEditFrameId = null;
+            setEditStatus('', '');
+        }
+
+        function setEditStatus(type, message) {
+            const statusEl = document.getElementById('editStatus');
+            statusEl.className = 'status-message' + (type ? ' ' + type : '');
+            statusEl.textContent = message;
+        }
+
+        async function saveChanges() {
+            if (!currentEditFrameId) return;
+
+            const title = document.getElementById('editTitle').value;
+            const asciiArt = document.getElementById('editAscii').value;
+            const prompt = document.getElementById('editPrompt').value;
+
+            setEditStatus('loading', 'Saving new version...');
+
+            try {
+                // Use the new /save endpoint that creates version history
+                const response = await fetch(`${API_BASE}/api/frame/${currentEditFrameId}/save`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...getAuthHeaders()
+                    },
+                    body: JSON.stringify({ title, asciiArt, imagePrompt: prompt })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    setEditStatus('success', `Saved as version ${result.currentVersion}!`);
+
+                    // Reload database to reflect changes
+                    await loadFramesDatabase();
+                    showFrame(currentFrameIndex);
+
+                    // Refresh version history
+                    await loadVersionHistory();
+
+                    // Don't auto-close so user can see the new version
+                } else {
+                    setEditStatus('error', result.error || 'Failed to save');
+                }
+
+            } catch (e) {
+                setEditStatus('error', 'Failed to save. Is API server running? (python api_server.py)');
+            }
+        }
+
+        async function regenerateImage() {
+            if (!currentEditFrameId) return;
+
+            const prompt = document.getElementById('editPrompt').value;
+
+            if (!prompt.trim()) {
+                setEditStatus('error', 'Please enter an image prompt first.');
+                return;
+            }
+
+            setEditStatus('loading', 'Generating image with DALL-E 3... This may take up to 60 seconds.');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/frame/${currentEditFrameId}/regenerate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...getAuthHeaders()
+                    },
+                    body: JSON.stringify({ imagePrompt: prompt })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    setEditStatus('success', `Image generated as version ${result.currentVersion}!`);
+
+                    // Force cache refresh for the new image
+                    imageCacheBuster = Date.now();
+
+                    // Reload database and display
+                    await loadFramesDatabase();
+                    showFrame(currentFrameIndex);
+
+                    // Refresh version history
+                    await loadVersionHistory();
+                } else {
+                    setEditStatus('error', result.error || 'Failed to generate image.');
+                }
+            } catch (e) {
+                setEditStatus('error', 'Failed to connect to API. Is api_server.py running?');
+            }
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (e) => {
+            const modal = document.getElementById('editModal');
+            if (e.target === modal) {
+                closeEditModal();
+            }
+        });
+
+        // ================================================================
+        // PAN-ZOOM VIEWER FUNCTIONS
+        // ================================================================
+
+        let zoomState = {
+            scale: 1,
+            minScale: 0.5,
+            maxScale: 5,
+            x: 0,
+            y: 0,
+            isDragging: false,
+            startX: 0,
+            startY: 0,
+            imgWidth: 0,
+            imgHeight: 0
+        };
+
+        function openZoomViewer(imagePath) {
+            const viewer = document.getElementById('zoomViewer');
+            const img = document.getElementById('zoomImage');
+            const container = document.getElementById('zoomContainer');
+
+            img.src = imagePath;
+            viewer.classList.add('active');
+
+            // Wait for image to load, then center it
+            img.onload = function() {
+                zoomState.imgWidth = img.naturalWidth;
+                zoomState.imgHeight = img.naturalHeight;
+                resetZoomView();
+            };
+
+            // Add event listeners
+            container.addEventListener('wheel', handleWheel, { passive: false });
+            container.addEventListener('mousedown', startDrag);
+            container.addEventListener('mousemove', doDrag);
+            container.addEventListener('mouseup', endDrag);
+            container.addEventListener('mouseleave', endDrag);
+        }
+
+        function closeZoomViewer() {
+            const viewer = document.getElementById('zoomViewer');
+            const container = document.getElementById('zoomContainer');
+
+            viewer.classList.remove('active');
+
+            // Remove event listeners
+            container.removeEventListener('wheel', handleWheel);
+            container.removeEventListener('mousedown', startDrag);
+            container.removeEventListener('mousemove', doDrag);
+            container.removeEventListener('mouseup', endDrag);
+            container.removeEventListener('mouseleave', endDrag);
+        }
+
+        function handleWheel(e) {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? -0.1 : 0.1;
+            const newScale = Math.max(zoomState.minScale, Math.min(zoomState.maxScale, zoomState.scale + delta));
+
+            // Zoom towards mouse position
+            const container = document.getElementById('zoomContainer');
+            const rect = container.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            const scaleChange = newScale / zoomState.scale;
+            zoomState.x = mouseX - (mouseX - zoomState.x) * scaleChange;
+            zoomState.y = mouseY - (mouseY - zoomState.y) * scaleChange;
+            zoomState.scale = newScale;
+
+            updateZoomTransform();
+        }
+
+        function zoomIn() {
+            zoomState.scale = Math.min(zoomState.maxScale, zoomState.scale + 0.25);
+            // Zoom towards center
+            const container = document.getElementById('zoomContainer');
+            const centerX = container.clientWidth / 2;
+            const centerY = container.clientHeight / 2;
+            zoomState.x = centerX - (centerX - zoomState.x) * (zoomState.scale / (zoomState.scale - 0.25));
+            zoomState.y = centerY - (centerY - zoomState.y) * (zoomState.scale / (zoomState.scale - 0.25));
+            updateZoomTransform();
+        }
+
+        function zoomOut() {
+            const oldScale = zoomState.scale;
+            zoomState.scale = Math.max(zoomState.minScale, zoomState.scale - 0.25);
+            const container = document.getElementById('zoomContainer');
+            const centerX = container.clientWidth / 2;
+            const centerY = container.clientHeight / 2;
+            const scaleChange = zoomState.scale / oldScale;
+            zoomState.x = centerX - (centerX - zoomState.x) * scaleChange;
+            zoomState.y = centerY - (centerY - zoomState.y) * scaleChange;
+            updateZoomTransform();
+        }
+
+        function resetZoomView() {
+            const container = document.getElementById('zoomContainer');
+            const img = document.getElementById('zoomImage');
+
+            // Fit image to container
+            const containerW = container.clientWidth;
+            const containerH = container.clientHeight;
+            const imgW = zoomState.imgWidth;
+            const imgH = zoomState.imgHeight;
+
+            // Calculate scale to fit
+            const scaleX = containerW / imgW;
+            const scaleY = containerH / imgH;
+            zoomState.scale = Math.min(scaleX, scaleY) * 0.9; // 90% to add some margin
+
+            // Center the image
+            const scaledW = imgW * zoomState.scale;
+            const scaledH = imgH * zoomState.scale;
+            zoomState.x = (containerW - scaledW) / 2;
+            zoomState.y = (containerH - scaledH) / 2;
+
+            updateZoomTransform();
+        }
+
+        function startDrag(e) {
+            if (e.target.closest('.zoom-controls')) return;
+            zoomState.isDragging = true;
+            zoomState.startX = e.clientX - zoomState.x;
+            zoomState.startY = e.clientY - zoomState.y;
+            document.getElementById('zoomViewer').classList.add('grabbing');
+        }
+
+        function doDrag(e) {
+            if (!zoomState.isDragging) return;
+            e.preventDefault();
+            zoomState.x = e.clientX - zoomState.startX;
+            zoomState.y = e.clientY - zoomState.startY;
+            updateZoomTransform();
+        }
+
+        function endDrag() {
+            zoomState.isDragging = false;
+            document.getElementById('zoomViewer').classList.remove('grabbing');
+        }
+
+        function updateZoomTransform() {
+            const img = document.getElementById('zoomImage');
+            img.style.transform = `translate(${zoomState.x}px, ${zoomState.y}px) scale(${zoomState.scale})`;
+            document.getElementById('zoomLevel').textContent = Math.round(zoomState.scale * 100) + '%';
+        }
+
+        // Close zoom viewer with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const viewer = document.getElementById('zoomViewer');
+                if (viewer.classList.contains('active')) {
+                    closeZoomViewer();
+                    e.stopPropagation();
+                }
+            }
+        });
+
+        // ================================================================
+        // FULLSCREEN IMAGE FUNCTIONS
+        // ================================================================
+
+        function openFullscreen(imagePath) {
+            const modal = document.getElementById('fullscreenModal');
+            const img = document.getElementById('fullscreenImage');
+            img.src = imagePath;
+            modal.style.display = 'block';
+        }
+
+        function closeFullscreen() {
+            document.getElementById('fullscreenModal').style.display = 'none';
+        }
+
+        // Close fullscreen on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.getElementById('fullscreenModal').style.display === 'block') {
+                closeFullscreen();
+            }
+        });
+
+        // ================================================================
+        // DOWNLOAD FUNCTIONS
+        // ================================================================
+
+        function downloadAscii() {
+            if (!framesDatabase) return;
+            const frame = framesDatabase.frames[currentFrameIndex];
+            const ascii = frame.visualization.asciiArt || '';
+            const fileName = frame.reference.replace(/:/g, '_').replace(/ /g, '_') + '_ascii.txt';
+
+            const content = `${frame.reference}\n${'='.repeat(50)}\n${frame.visualization.title}\n${'='.repeat(50)}\n\n"${frame.text}"\n\n${'='.repeat(50)}\n\n${ascii}`;
+
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        async function downloadFrame() {
+            if (!framesDatabase) return;
+            const frame = framesDatabase.frames[currentFrameIndex];
+            const fileName = frame.reference.replace(/:/g, '_').replace(/ /g, '_') + '.html';
+
+            // Convert image to base64 if it exists
+            let imageDataUrl = '';
+            if (frame.visualization.imagePath) {
+                try {
+                    const response = await fetch(frame.visualization.imagePath);
+                    const blob = await response.blob();
+                    imageDataUrl = await new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve(reader.result);
+                        reader.readAsDataURL(blob);
+                    });
+                } catch (error) {
+                    console.error('Error loading image:', error);
+                }
+            }
+
+            const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${frame.reference}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #fff;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 15px;
+            padding: 40px;
+            color: #333;
+        }
+        .verse-reference {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #2a5298;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .verse-text {
+            font-size: 1.6em;
+            font-style: italic;
+            color: #555;
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.8;
+        }
+        .scene-title {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4CAF50;
+            margin: 30px 0 20px 0;
+            text-align: center;
+        }
+        .visuals {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 40px;
+            margin-top: 20px;
+        }
+        .ascii-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 5px solid #4CAF50;
+        }
+        .ascii-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2a5298;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .ascii-art {
+            font-family: 'Courier New', monospace;
+            white-space: pre;
+            line-height: 1.4;
+            font-size: 1em;
+            text-align: center;
+            color: #333;
+            overflow-x: auto;
+        }
+        .image-section { text-align: center; }
+        .hd-image {
+            width: 100%;
+            max-width: 700px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="verse-reference">${frame.reference}</div>
+        <div class="verse-text">"${frame.text}"</div>
+        <div class="scene-title">${frame.visualization.title}</div>
+        <div class="visuals">
+            <div class="ascii-section">
+                <div class="ascii-title">ASCII Visualization</div>
+                <div class="ascii-art">${frame.visualization.asciiArt}</div>
+            </div>
+            ${imageDataUrl ? `
+            <div class="image-section">
+                <div class="ascii-title">AI-Generated Artwork</div>
+                <img src="${imageDataUrl}" alt="${frame.reference}" class="hd-image">
+            </div>
+            ` : ''}
+        </div>
+        <div class="footer">
+            <strong>Genesis Visualized</strong><br>
+            A multimedia journey through the beginning of all things<br>
+            Freely given | No advertisements | To God's glory
+        </div>
+    </div>
+</body>
+</html>`;
+
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // ================================================================
+        // CHAPTER NAVIGATION FUNCTIONS
+        // ================================================================
+
+        function setupChapterButtons() {
+            if (!framesDatabase) return;
+
+            const chapters = new Set();
+            framesDatabase.frames.forEach(frame => {
+                const match = frame.reference.match(/Genesis (\d+):/);
+                if (match) chapters.add(parseInt(match[1]));
+            });
+
+            const container = document.getElementById('chapterButtons');
+            container.innerHTML = '<span class="chapter-label">Chapter:</span>';
+
+            Array.from(chapters).sort((a, b) => a - b).forEach(chapter => {
+                const btn = document.createElement('button');
+                btn.className = 'chapter-btn';
+                btn.textContent = chapter;
+                btn.onclick = () => jumpToChapter(chapter);
+                container.appendChild(btn);
+            });
+
+            updateChapterHighlight();
+        }
+
+        function jumpToChapter(chapter) {
+            const firstIndex = framesDatabase.frames.findIndex(frame => {
+                const match = frame.reference.match(/Genesis (\d+):/);
+                return match && parseInt(match[1]) === chapter;
+            });
+            if (firstIndex !== -1) {
+                currentFrameIndex = firstIndex;
+                isLiveMode = false;
+                showFrame(currentFrameIndex);
+            }
+        }
+
+        function updateChapterHighlight() {
+            if (!framesDatabase) return;
+
+            const currentFrame = framesDatabase.frames[currentFrameIndex];
+            const match = currentFrame.reference.match(/Genesis (\d+):/);
+            const currentChapter = match ? parseInt(match[1]) : 0;
+
+            document.querySelectorAll('.chapter-btn').forEach(btn => {
+                btn.classList.toggle('active', parseInt(btn.textContent) === currentChapter);
+            });
+        }
+
+        // Update chapter highlight when frame changes
+        const originalShowFrame = showFrame;
+        showFrame = function(index) {
+            originalShowFrame(index);
+            updateChapterHighlight();
+        };
+
+        // Setup chapter buttons after database loads
+        const originalLoadFramesDatabase = loadFramesDatabase;
+        loadFramesDatabase = async function() {
+            await originalLoadFramesDatabase();
+            if (framesDatabase && document.querySelectorAll('.chapter-btn').length === 0) {
+                setupChapterButtons();
+            }
+        };
+
+        // Initial load - load database first to show saved frame
+        loadFramesDatabase();
+
+        // Check authentication status on page load
+        checkAuth();
+
+        // Poll for updates every 2 seconds (only active in live mode)
+        setInterval(loadVerseData, 2000);
+    </script>
+</body>
+</html>

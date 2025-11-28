@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genesis Visualized - Gallery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 30px 50px;
+            padding-top: 90px;
+            color: #fff;
+        }
+
+        /* Chapter Navigation Header */
+        .chapter-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            z-index: 1001;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.4);
+        }
+
+        .chapter-nav-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-link {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.95em;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .nav-link:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .nav-link.blue {
+            background: #2196F3;
+        }
+
+        .nav-link.blue:hover {
+            background: #0b7dda;
+        }
+
+        .chapter-buttons {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+            flex: 1;
+        }
+
+        .chapter-label {
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9em;
+            margin-right: 5px;
+        }
+
+        .chapter-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .chapter-btn:hover {
+            background: rgba(255,255,255,0.35);
+            transform: translateY(-2px);
+        }
+
+        .chapter-btn.active {
+            background: #4CAF50;
+            box-shadow: 0 2px 10px rgba(76,175,80,0.4);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            opacity: 0.9;
+        }
+
+        .gallery-container {
+            max-width: 2400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .stats {
+            text-align: center;
+            background: rgba(255,255,255,0.1);
+            padding: 25px;
+            border-radius: 20px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .stats h2 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            color: #4CAF50;
+        }
+
+        .stats p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 35px;
+            margin-bottom: 40px;
+        }
+
+        .frame-card {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            padding: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+            border: 3px solid transparent;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .frame-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+            border-color: #4CAF50;
+        }
+
+        .frame-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .frame-number {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 1em;
+            font-weight: bold;
+        }
+
+        .frame-chapter {
+            background: #2196F3;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .frame-reference {
+            font-size: 1.6em;
+            font-weight: bold;
+            color: #2a5298;
+            margin-bottom: 12px;
+        }
+
+        .frame-text {
+            font-size: 1.1em;
+            font-style: italic;
+            color: #555;
+            margin-bottom: 18px;
+            line-height: 1.7;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .frame-preview {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 5px solid #4CAF50;
+            flex: 1;
+        }
+
+        .frame-title {
+            font-size: 1.25em;
+            font-weight: bold;
+            color: #4CAF50;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .frame-hd-preview {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+
+        .frame-ascii {
+            font-family: 'Courier New', monospace;
+            white-space: pre;
+            font-size: 0.55em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-height: 150px;
+            text-align: center;
+            color: #333;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            line-height: 1.3;
+        }
+
+        .empty-gallery {
+            text-align: center;
+            padding: 100px 20px;
+            grid-column: 1 / -1;
+        }
+
+        .empty-icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+        }
+
+        /* Modal for full frame view */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.97);
+            overflow: auto;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            margin: 20px auto;
+            padding: 50px 60px;
+            width: 96%;
+            max-width: 1800px;
+            border-radius: 25px;
+            position: relative;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.6);
+        }
+
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: #666;
+            font-size: 45px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 10;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .close:hover {
+            color: #fff;
+            background: #e74c3c;
+        }
+
+        .modal .verse-reference {
+            font-size: 3.2em;
+            font-weight: bold;
+            color: #2a5298;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal .verse-text {
+            font-size: 1.7em;
+            font-style: italic;
+            color: #444;
+            margin-bottom: 35px;
+            text-align: center;
+            line-height: 1.9;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0 20px;
+        }
+
+        .modal .scene-title {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #4CAF50;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .modal .visuals-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+            margin-top: 30px;
+        }
+
+        .modal .ascii-section {
+            background: #f8f9fa;
+            padding: 35px;
+            border-radius: 20px;
+            border-left: 6px solid #4CAF50;
+        }
+
+        .modal .section-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2a5298;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal .ascii-art {
+            font-family: 'Courier New', monospace;
+            white-space: pre;
+            line-height: 1.35;
+            font-size: 1.15em;
+            text-align: center;
+            color: #333;
+            overflow-x: auto;
+            padding: 10px;
+        }
+
+        .modal .image-section {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .modal .hd-image {
+            max-width: 100%;
+            max-height: 700px;
+            border-radius: 20px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.35);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .modal .hd-image:hover {
+            transform: scale(1.02);
+        }
+
+        /* Download Buttons */
+        .download-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 35px;
+            flex-wrap: wrap;
+            padding-top: 25px;
+            border-top: 2px solid #eee;
+        }
+
+        .download-btn {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1.05em;
+            font-weight: bold;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .download-btn.orange {
+            background: #FF9800;
+        }
+
+        .download-btn.orange:hover {
+            background: #F57C00;
+        }
+
+        .download-btn.purple {
+            background: #9C27B0;
+        }
+
+        .download-btn.purple:hover {
+            background: #7B1FA2;
+        }
+
+        .download-btn.green {
+            background: #4CAF50;
+        }
+
+        .download-btn.green:hover {
+            background: #45a049;
+        }
+
+        /* Fullscreen Image Modal */
+        .fullscreen-modal {
+            display: none;
+            position: fixed;
+            z-index: 3000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.98);
+            cursor: pointer;
+        }
+
+        .fullscreen-modal img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 95%;
+            max-height: 95%;
+            object-fit: contain;
+            border-radius: 5px;
+        }
+
+        .fullscreen-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 45px;
+            cursor: pointer;
+            z-index: 3001;
+            transition: color 0.3s;
+        }
+
+        .fullscreen-close:hover {
+            color: #4CAF50;
+        }
+
+        /* Ultra-wide screens - larger cards */
+        @media (min-width: 2000px) {
+            body {
+                padding: 40px 80px;
+                padding-top: 100px;
+            }
+
+            .gallery-grid {
+                gap: 45px;
+            }
+
+            .frame-card {
+                padding: 35px;
+            }
+
+            .frame-reference {
+                font-size: 1.8em;
+            }
+
+            .frame-text {
+                font-size: 1.2em;
+            }
+
+            .frame-hd-preview {
+                height: 350px;
+            }
+
+            .frame-ascii {
+                font-size: 0.6em;
+                max-height: 180px;
+            }
+        }
+
+        /* Tablet - 2 columns */
+        @media (max-width: 1400px) {
+            .gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 30px;
+            }
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+                padding-top: 120px;
+            }
+
+            .chapter-nav-content {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .chapter-buttons {
+                justify-content: center;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .gallery-grid {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+
+            .frame-card {
+                padding: 25px;
+            }
+
+            .frame-reference {
+                font-size: 1.4em;
+            }
+
+            .frame-text {
+                font-size: 1.05em;
+            }
+
+            .frame-hd-preview {
+                height: 250px;
+            }
+
+            .modal .visuals-container {
+                grid-template-columns: 1fr;
+            }
+
+            .download-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Chapter Navigation Header -->
+    <div class="chapter-nav">
+        <div class="chapter-nav-content">
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">🏠 Home</a>
+                <a href="visualizer.html" class="nav-link blue">📖 Reader</a>
+            </div>
+            <div class="chapter-buttons" id="chapterButtons">
+                <span class="chapter-label">Jump to Chapter:</span>
+                <!-- Chapter buttons added by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Fullscreen Image Modal -->
+    <div id="fullscreenModal" class="fullscreen-modal" onclick="closeFullscreen()">
+        <span class="fullscreen-close">&times;</span>
+        <img id="fullscreenImage" src="" alt="Fullscreen view">
+    </div>
+
+    <div class="header">
+        <h1>📚 Genesis Gallery</h1>
+        <div class="subtitle">Browse All Visualized Verses</div>
+    </div>
+
+    <div class="gallery-container">
+        <div class="stats" id="stats">
+            <h2>Loading...</h2>
+        </div>
+
+        <div class="gallery-grid" id="galleryGrid">
+            <div class="empty-gallery">
+                <div class="empty-icon">⏳</div>
+                <p style="font-size: 1.5em;">Loading gallery...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for full frame view -->
+    <div id="frameModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        let framesDatabase = null;
+        let currentModalIndex = null;
+        let activeChapterFilter = null;
+
+        async function loadGallery() {
+            try {
+                const response = await fetch('frames-database.json');
+                framesDatabase = await response.json();
+                setupChapterButtons();
+                renderGallery();
+            } catch (error) {
+                console.error('Error loading gallery:', error);
+                document.getElementById('galleryGrid').innerHTML = `
+                    <div class="empty-gallery">
+                        <div class="empty-icon">❌</div>
+                        <p style="font-size: 1.5em;">Error loading gallery</p>
+                    </div>
+                `;
+            }
+        }
+
+        function setupChapterButtons() {
+            const chapters = new Set();
+            framesDatabase.frames.forEach(frame => {
+                const match = frame.reference.match(/Genesis (\d+):/);
+                if (match) chapters.add(parseInt(match[1]));
+            });
+
+            const container = document.getElementById('chapterButtons');
+            container.innerHTML = '<span class="chapter-label">Jump to Chapter:</span>';
+
+            // Add "All" button
+            const allBtn = document.createElement('button');
+            allBtn.className = 'chapter-btn active';
+            allBtn.textContent = 'All';
+            allBtn.onclick = () => filterByChapter(null);
+            container.appendChild(allBtn);
+
+            Array.from(chapters).sort((a, b) => a - b).forEach(chapter => {
+                const btn = document.createElement('button');
+                btn.className = 'chapter-btn';
+                btn.textContent = chapter;
+                btn.onclick = () => filterByChapter(chapter);
+                container.appendChild(btn);
+            });
+        }
+
+        function filterByChapter(chapter) {
+            activeChapterFilter = chapter;
+
+            // Update button states
+            document.querySelectorAll('.chapter-btn').forEach(btn => {
+                if (chapter === null) {
+                    btn.classList.toggle('active', btn.textContent === 'All');
+                } else {
+                    btn.classList.toggle('active', parseInt(btn.textContent) === chapter);
+                }
+            });
+
+            renderGallery();
+        }
+
+        function getChapter(reference) {
+            const match = reference.match(/Genesis (\d+):/);
+            return match ? parseInt(match[1]) : 0;
+        }
+
+        function renderGallery() {
+            const statsEl = document.getElementById('stats');
+            const gridEl = document.getElementById('galleryGrid');
+
+            if (!framesDatabase || framesDatabase.frames.length === 0) {
+                statsEl.innerHTML = '<h2>No frames yet</h2><p>Start creating verses to build your gallery!</p>';
+                gridEl.innerHTML = `
+                    <div class="empty-gallery">
+                        <div class="empty-icon">📖</div>
+                        <p style="font-size: 1.5em;">No frames yet</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Filter frames by chapter if active
+            let filteredFrames = framesDatabase.frames;
+            if (activeChapterFilter !== null) {
+                filteredFrames = framesDatabase.frames.filter(frame =>
+                    getChapter(frame.reference) === activeChapterFilter
+                );
+            }
+
+            // Count images
+            const imagesCount = filteredFrames.filter(f => f.visualization.imagePath).length;
+
+            // Update stats
+            const chapterText = activeChapterFilter !== null ? ` from Chapter ${activeChapterFilter}` : '';
+            statsEl.innerHTML = `
+                <h2>${filteredFrames.length} Verse${filteredFrames.length !== 1 ? 's' : ''}${chapterText}</h2>
+                <p>${imagesCount} HD Images | Click any card to view full details</p>
+            `;
+
+            // Render frames
+            gridEl.innerHTML = '';
+
+            if (filteredFrames.length === 0) {
+                gridEl.innerHTML = `
+                    <div class="empty-gallery">
+                        <div class="empty-icon">🔍</div>
+                        <p style="font-size: 1.5em;">No verses in Chapter ${activeChapterFilter}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filteredFrames.forEach((frame) => {
+                const index = framesDatabase.frames.indexOf(frame);
+                const chapter = getChapter(frame.reference);
+                const card = document.createElement('div');
+                card.className = 'frame-card';
+                card.onclick = () => openModal(index);
+
+                let previewHTML = `
+                    <div class="frame-header">
+                        <span class="frame-number">Frame ${frame.id}</span>
+                        <span class="frame-chapter">Ch. ${chapter}</span>
+                    </div>
+                    <div class="frame-reference">${frame.reference}</div>
+                    <div class="frame-text">"${frame.text}"</div>
+                    <div class="frame-preview">
+                        <div class="frame-title">${frame.visualization.title}</div>
+                `;
+
+                if (frame.visualization.imagePath) {
+                    previewHTML += `<img src="${frame.visualization.imagePath}" alt="${frame.reference}" class="frame-hd-preview" loading="lazy">`;
+                }
+
+                previewHTML += `
+                        <div class="frame-ascii">${frame.visualization.asciiArt}</div>
+                    </div>
+                `;
+
+                card.innerHTML = previewHTML;
+                gridEl.appendChild(card);
+            });
+        }
+
+        function openModal(index) {
+            currentModalIndex = index;
+            const frame = framesDatabase.frames[index];
+            const modal = document.getElementById('frameModal');
+            const modalContent = document.getElementById('modalContent');
+            const safeRef = frame.reference.replace(/:/g, '_').replace(/ /g, '_');
+
+            let html = `
+                <div class="verse-reference">${frame.reference}</div>
+                <div class="verse-text">"${frame.text}"</div>
+                <div class="scene-title">${frame.visualization.title}</div>
+                <div class="visuals-container">
+            `;
+
+            // Add HD image if available
+            if (frame.visualization.imagePath) {
+                html += `
+                    <div class="image-section">
+                        <div class="section-title">🎨 AI-Generated Artwork</div>
+                        <img src="${frame.visualization.imagePath}"
+                             alt="${frame.reference}"
+                             class="hd-image"
+                             onclick="event.stopPropagation(); openFullscreen('${frame.visualization.imagePath}')"
+                             title="Click for fullscreen">
+                    </div>
+                `;
+            }
+
+            // Add ASCII art
+            html += `
+                <div class="ascii-section">
+                    <div class="section-title">📝 ASCII Visualization</div>
+                    <div class="ascii-art">${frame.visualization.asciiArt}</div>
+                </div>
+            `;
+
+            html += `</div>`;
+
+            // Add download buttons
+            html += `
+                <div class="download-buttons">
+                    ${frame.visualization.imagePath ? `
+                        <a href="${frame.visualization.imagePath}" download="${safeRef}.png" class="download-btn">
+                            ⬇️ Download Image
+                        </a>
+                    ` : ''}
+                    <button onclick="downloadAscii(${index})" class="download-btn orange">
+                        📝 Download ASCII
+                    </button>
+                    <button onclick="downloadFrame(${index})" class="download-btn purple">
+                        📥 Download Full Frame
+                    </button>
+                    <a href="visualizer.html#frame=${frame.id}" class="download-btn green">
+                        📖 View in Reader
+                    </a>
+                </div>
+            `;
+
+            modalContent.innerHTML = html;
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('frameModal').style.display = 'none';
+            currentModalIndex = null;
+        }
+
+        // Fullscreen functions
+        function openFullscreen(imagePath) {
+            const modal = document.getElementById('fullscreenModal');
+            const img = document.getElementById('fullscreenImage');
+            img.src = imagePath;
+            modal.style.display = 'block';
+        }
+
+        function closeFullscreen() {
+            document.getElementById('fullscreenModal').style.display = 'none';
+        }
+
+        // Download functions
+        function downloadAscii(index) {
+            const frame = framesDatabase.frames[index];
+            const ascii = frame.visualization.asciiArt || '';
+            const fileName = frame.reference.replace(/:/g, '_').replace(/ /g, '_') + '_ascii.txt';
+
+            const content = `${frame.reference}\n${'='.repeat(50)}\n${frame.visualization.title}\n${'='.repeat(50)}\n\n"${frame.text}"\n\n${'='.repeat(50)}\n\n${ascii}`;
+
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        async function downloadFrame(index) {
+            const frame = framesDatabase.frames[index];
+            const fileName = frame.reference.replace(/:/g, '_').replace(/ /g, '_') + '.html';
+
+            let imageDataUrl = '';
+            if (frame.visualization.imagePath) {
+                try {
+                    const response = await fetch(frame.visualization.imagePath);
+                    const blob = await response.blob();
+                    imageDataUrl = await new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve(reader.result);
+                        reader.readAsDataURL(blob);
+                    });
+                } catch (error) {
+                    console.error('Error loading image:', error);
+                }
+            }
+
+            const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${frame.reference}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #fff;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 15px;
+            padding: 40px;
+            color: #333;
+        }
+        .verse-reference {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #2a5298;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .verse-text {
+            font-size: 1.6em;
+            font-style: italic;
+            color: #555;
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.8;
+        }
+        .scene-title {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4CAF50;
+            margin: 30px 0 20px 0;
+            text-align: center;
+        }
+        .visuals {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 40px;
+            margin-top: 20px;
+        }
+        .ascii-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 5px solid #4CAF50;
+        }
+        .ascii-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2a5298;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .ascii-art {
+            font-family: 'Courier New', monospace;
+            white-space: pre;
+            line-height: 1.4;
+            font-size: 1em;
+            text-align: center;
+            color: #333;
+            overflow-x: auto;
+        }
+        .image-section { text-align: center; }
+        .hd-image {
+            width: 100%;
+            max-width: 700px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="verse-reference">${frame.reference}</div>
+        <div class="verse-text">"${frame.text}"</div>
+        <div class="scene-title">${frame.visualization.title}</div>
+        <div class="visuals">
+            <div class="ascii-section">
+                <div class="ascii-title">ASCII Visualization</div>
+                <div class="ascii-art">${frame.visualization.asciiArt}</div>
+            </div>
+            ${imageDataUrl ? `
+            <div class="image-section">
+                <div class="ascii-title">AI-Generated Artwork</div>
+                <img src="${imageDataUrl}" alt="${frame.reference}" class="hd-image">
+            </div>
+            ` : ''}
+        </div>
+        <div class="footer">
+            <strong>Genesis Visualized</strong><br>
+            A multimedia journey through the beginning of all things<br>
+            Freely given | No advertisements | To God's glory
+        </div>
+    </div>
+</body>
+</html>`;
+
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Event listeners
+        window.onclick = function(event) {
+            const modal = document.getElementById('frameModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (document.getElementById('fullscreenModal').style.display === 'block') {
+                    closeFullscreen();
+                } else {
+                    closeModal();
+                }
+            }
+            // Navigate between frames in modal
+            if (currentModalIndex !== null) {
+                if (e.key === 'ArrowLeft' && currentModalIndex > 0) {
+                    openModal(currentModalIndex - 1);
+                }
+                if (e.key === 'ArrowRight' && currentModalIndex < framesDatabase.frames.length - 1) {
+                    openModal(currentModalIndex + 1);
+                }
+            }
+        });
+
+        // Load gallery
+        loadGallery();
+    </script>
+</body>
+</html>

@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Genesis Visualized</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Georgia, serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            color: #2a5298;
+            margin-bottom: 10px;
+            font-size: 1.8em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1em;
+            font-family: Georgia, serif;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-family: Georgia, serif;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .login-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success-message {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .back-link {
+            display: block;
+            margin-top: 25px;
+            color: #2a5298;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .user-info {
+            display: none;
+            text-align: center;
+        }
+
+        .user-info h2 {
+            color: #4CAF50;
+            margin-bottom: 15px;
+        }
+
+        .user-info p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .user-info .role-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background: #2196F3;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+        }
+
+        .user-info .role-badge.admin {
+            background: #FF9800;
+        }
+
+        .logout-btn {
+            background: #f44336;
+            margin-top: 10px;
+        }
+
+        .logout-btn:hover {
+            background: #d32f2f;
+            box-shadow: 0 5px 20px rgba(244, 67, 54, 0.4);
+        }
+
+        .continue-btn {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+        }
+
+        .continue-btn:hover {
+            box-shadow: 0 5px 20px rgba(33, 150, 243, 0.4);
+        }
+
+        /* Admin panel */
+        .admin-panel {
+            display: none;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #eee;
+            text-align: left;
+        }
+
+        .admin-panel h3 {
+            color: #FF9800;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .user-list {
+            margin-bottom: 20px;
+        }
+
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .user-item .username {
+            font-weight: bold;
+        }
+
+        .user-item .role {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .delete-user-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+
+        .delete-user-btn:hover {
+            background: #d32f2f;
+        }
+
+        .add-user-form {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .add-user-form h4 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .add-user-form input, .add-user-form select {
+            margin-bottom: 10px;
+        }
+
+        .add-user-btn {
+            background: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">📖</div>
+        <h1>Genesis Visualized</h1>
+        <p class="subtitle">Sign in to edit and contribute</p>
+
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+
+        <!-- Login Form -->
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter your username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+            <button type="submit" class="login-btn" id="loginBtn">Sign In</button>
+        </form>
+
+        <!-- User Info (shown when logged in) -->
+        <div class="user-info" id="userInfo">
+            <h2>Welcome, <span id="displayName"></span>!</h2>
+            <span class="role-badge" id="roleBadge"></span>
+            <p>You are now logged in and can edit frames.</p>
+            <button class="login-btn continue-btn" onclick="goToVisualizer()">Continue to Visualizer</button>
+            <button class="login-btn logout-btn" onclick="logout()">Sign Out</button>
+
+            <!-- Admin Panel -->
+            <div class="admin-panel" id="adminPanel">
+                <h3>Admin Panel</h3>
+                <div class="user-list" id="userList">
+                    Loading users...
+                </div>
+                <div class="add-user-form">
+                    <h4>Add New User</h4>
+                    <input type="text" id="newUsername" placeholder="Username">
+                    <input type="password" id="newPassword" placeholder="Password">
+                    <select id="newRole">
+                        <option value="editor">Editor</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                    <button class="login-btn add-user-btn" onclick="addUser()">Add User</button>
+                </div>
+            </div>
+        </div>
+
+        <a href="index.html" class="back-link">← Back to Home</a>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+
+        // Check if already logged in
+        document.addEventListener('DOMContentLoaded', checkAuth);
+
+        async function checkAuth() {
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                try {
+                    const response = await fetch(`${API_BASE}/api/auth/me`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.authenticated) {
+                            showLoggedIn(data.username, data.role);
+                            return;
+                        }
+                    }
+                } catch (e) {
+                    console.error('Auth check failed:', e);
+                }
+                localStorage.removeItem('authToken');
+            }
+            showLoginForm();
+        }
+
+        function showLoginForm() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('userInfo').style.display = 'none';
+        }
+
+        function showLoggedIn(username, role) {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('userInfo').style.display = 'block';
+            document.getElementById('displayName').textContent = username;
+
+            const badge = document.getElementById('roleBadge');
+            badge.textContent = role.toUpperCase();
+            badge.className = 'role-badge' + (role === 'admin' ? ' admin' : '');
+
+            // Show admin panel if admin
+            if (role === 'admin') {
+                document.getElementById('adminPanel').style.display = 'block';
+                loadUsers();
+            }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('loginBtn');
+
+            btn.disabled = true;
+            btn.textContent = 'Signing in...';
+            hideMessages();
+
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    localStorage.setItem('authToken', data.token);
+                    showSuccess('Login successful!');
+                    setTimeout(() => showLoggedIn(data.username, data.role), 500);
+                } else {
+                    showError(data.error || 'Login failed');
+                }
+            } catch (e) {
+                showError('Could not connect to server');
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Sign In';
+        });
+
+        async function logout() {
+            const token = localStorage.getItem('authToken');
+            try {
+                await fetch(`${API_BASE}/api/auth/logout`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+            } catch (e) {}
+
+            localStorage.removeItem('authToken');
+            showLoginForm();
+            showSuccess('Signed out successfully');
+        }
+
+        function goToVisualizer() {
+            window.location.href = 'visualizer.html';
+        }
+
+        async function loadUsers() {
+            const token = localStorage.getItem('authToken');
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/users`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+
+                if (data.users) {
+                    const list = document.getElementById('userList');
+                    list.innerHTML = data.users.map(u => `
+                        <div class="user-item">
+                            <div>
+                                <span class="username">${u.username}</span>
+                                <span class="role">(${u.role})</span>
+                            </div>
+                            ${u.role !== 'admin' ? `<button class="delete-user-btn" onclick="deleteUser('${u.username}')">Delete</button>` : ''}
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error('Could not load users:', e);
+            }
+        }
+
+        async function addUser() {
+            const username = document.getElementById('newUsername').value;
+            const password = document.getElementById('newPassword').value;
+            const role = document.getElementById('newRole').value;
+            const token = localStorage.getItem('authToken');
+
+            if (!username || !password) {
+                showError('Username and password required');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ username, password, role })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showSuccess(`User '${username}' created!`);
+                    document.getElementById('newUsername').value = '';
+                    document.getElementById('newPassword').value = '';
+                    loadUsers();
+                } else {
+                    showError(data.error);
+                }
+            } catch (e) {
+                showError('Could not create user');
+            }
+        }
+
+        async function deleteUser(username) {
+            if (!confirm(`Delete user '${username}'?`)) return;
+
+            const token = localStorage.getItem('authToken');
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/delete`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ username })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showSuccess(`User '${username}' deleted`);
+                    loadUsers();
+                } else {
+                    showError(data.error);
+                }
+            } catch (e) {
+                showError('Could not delete user');
+            }
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('errorMessage');
+            el.textContent = msg;
+            el.style.display = 'block';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        function showSuccess(msg) {
+            const el = document.getElementById('successMessage');
+            el.textContent = msg;
+            el.style.display = 'block';
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        function hideMessages() {
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

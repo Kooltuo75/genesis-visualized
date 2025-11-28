@@ -1,0 +1,44 @@
+# API Keys and sensitive data
+.env
+.env.local
+*.env
+users.json
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+
+# Generated images (too large for GitHub - 818MB)
+images/
+images_web/
+images - Copy/
+
+# Windows artifacts
+nul
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+temp_*.py
+
+# Claude settings (local only)
+.claude/
