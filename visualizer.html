@@ -187,6 +187,24 @@
             font-size: 1.1em;
         }
 
+        .format-ascii-btn {
+            background: #FF9800;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+            transition: all 0.2s;
+        }
+
+        .format-ascii-btn:hover {
+            background: #F57C00;
+            transform: scale(1.05);
+        }
+
         .edit-section input[type="text"] {
             width: 100%;
             padding: 12px;
@@ -211,8 +229,9 @@
 
         .ascii-textarea {
             min-height: 300px;
-            line-height: 1.4;
-            font-size: 1em;
+            line-height: 1.2;
+            font-size: 14px;
+            font-family: 'Courier New', Consolas, monospace;
         }
 
         .ascii-editor-container {
@@ -240,24 +259,29 @@
         }
 
         .ascii-preview {
-            font-family: 'Courier New', monospace;
+            font-family: 'Courier New', Consolas, monospace;
             white-space: pre;
-            line-height: 1.4;
-            font-size: 1.2em;
+            line-height: 1.2;
+            font-size: 14px;
             background: #fff;
             color: #000;
-            padding: 30px;
+            padding: 20px;
             border-radius: 8px;
             overflow: auto;
             min-height: 300px;
             max-height: 500px;
-            text-align: center;
+            text-align: left;
             border: 2px solid #4CAF50;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
         .prompt-textarea {
             min-height: 100px;
+        }
+
+        .notes-textarea {
+            min-height: 120px;
+            line-height: 1.6;
         }
 
         .edit-actions {
@@ -513,6 +537,48 @@
         .restore-btn:disabled {
             background: #555;
             cursor: not-allowed;
+        }
+
+        .version-item-actions {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .version-item-actions button {
+            padding: 4px 10px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .use-ascii-btn {
+            background: #9C27B0;
+            color: white;
+        }
+
+        .use-ascii-btn:hover {
+            background: #7B1FA2;
+        }
+
+        .use-image-btn {
+            background: #2196F3;
+            color: white;
+        }
+
+        .use-image-btn:hover {
+            background: #1976D2;
+        }
+
+        .use-image-btn:disabled,
+        .use-ascii-btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+            opacity: 0.5;
         }
 
         .no-versions {
@@ -943,19 +1009,96 @@
             flex-wrap: wrap;
         }
 
-        .ascii-art {
-            font-family: 'Courier New', monospace;
-            white-space: pre;
-            line-height: 1.4;
-            font-size: 1.4em;
-            background: #fff;
+        .verse-card {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            border-radius: 16px;
             padding: 30px;
-            border-radius: 8px;
-            overflow-x: auto;
-            animation: fadeIn 1s;
-            text-align: center;
             flex: 1;
-            min-width: 400px;
+            min-width: 350px;
+            max-width: 500px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.1);
+            animation: fadeIn 1s;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .verse-card-header {
+            text-align: center;
+            border-bottom: 2px solid rgba(255,215,0,0.3);
+            padding-bottom: 15px;
+        }
+
+        .verse-card-reference {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 0 2px 10px rgba(255,215,0,0.3);
+            margin-bottom: 8px;
+        }
+
+        .verse-card-title {
+            font-size: 1.1em;
+            color: #87CEEB;
+            font-style: italic;
+        }
+
+        .verse-card-text {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid #FFD700;
+        }
+
+        .verse-card-text p {
+            font-size: 1.15em;
+            line-height: 1.8;
+            color: #f0f0f0;
+            margin: 0;
+            font-style: italic;
+        }
+
+        .verse-card-themes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .verse-card-theme {
+            background: rgba(255,215,0,0.15);
+            color: #FFD700;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            border: 1px solid rgba(255,215,0,0.3);
+        }
+
+        .verse-card-notes {
+            background: rgba(135,206,235,0.1);
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid rgba(135,206,235,0.2);
+        }
+
+        .verse-card-notes-title {
+            color: #87CEEB;
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+
+        .verse-card-notes-content {
+            color: #ccc;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .verse-card-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,215,0,0.3), transparent);
+            margin: 5px 0;
         }
 
         .hd-image-container {
@@ -1095,21 +1238,18 @@
             </div>
 
             <div class="edit-section">
-                <label>Title</label>
-                <input type="text" id="editTitle" placeholder="Scene title...">
+                <label>Scene Title</label>
+                <input type="text" id="editTitle" placeholder="A descriptive title for this scene...">
             </div>
 
             <div class="edit-section">
-                <label>ASCII Art (with Live Preview)</label>
-                <div class="ascii-editor-container">
-                    <div class="ascii-editor-left">
-                        <textarea id="editAscii" class="ascii-textarea" placeholder="ASCII art visualization..." oninput="updateAsciiPreview()"></textarea>
-                    </div>
-                    <div class="ascii-editor-right">
-                        <span class="ascii-preview-label">Preview (exactly as it will appear):</span>
-                        <div id="asciiPreview" class="ascii-preview"></div>
-                    </div>
-                </div>
+                <label>Themes (comma-separated)</label>
+                <input type="text" id="editThemes" placeholder="e.g., Creation, Light, Divine Power, Beginning">
+            </div>
+
+            <div class="edit-section">
+                <label>Insight / Notes</label>
+                <textarea id="editNotes" class="notes-textarea" placeholder="Add spiritual insight, historical context, or notes about this verse..."></textarea>
             </div>
 
             <div class="edit-section">
@@ -1118,7 +1258,7 @@
             </div>
 
             <div class="edit-actions">
-                <button class="save-btn" onclick="saveChanges()">💾 Save New Version</button>
+                <button class="save-btn" onclick="saveChanges()">💾 Save Changes</button>
                 <button class="regenerate-btn" onclick="regenerateImage()">🎨 Regenerate Image</button>
                 <button class="cancel-btn" onclick="closeEditModal()">Cancel</button>
             </div>
@@ -1163,7 +1303,7 @@
         let authToken = localStorage.getItem('authToken');
 
         // API base URL - works locally and when deployed
-        const API_BASE = window.location.origin;
+        const API_BASE = window.location.protocol + '//' + window.location.hostname + ':8003';
 
         const visualizationArea = document.getElementById('visualizationArea');
 
@@ -1312,24 +1452,37 @@
 
             let html = '';
 
-            if (reference) {
-                html += `<div class="verse-reference">${reference}</div>`;
-            }
-
-            if (text) {
-                html += `<div class="verse-text">"${text}"</div>`;
-            }
-
             html += `
                 <div class="visual-representation">
-                    <div class="scene-title">${visualization.title}</div>
                     <div class="visuals-container">
             `;
 
-            // ASCII Art section
-            if (visualization.asciiArt) {
-                html += `<div class="ascii-art">${visualization.asciiArt}</div>`;
-            }
+            // Verse Card section (replaces ASCII art)
+            html += `
+                <div class="verse-card">
+                    <div class="verse-card-header">
+                        <div class="verse-card-reference">${reference}</div>
+                        <div class="verse-card-title">${visualization.title || ''}</div>
+                    </div>
+
+                    <div class="verse-card-text">
+                        <p>"${text}"</p>
+                    </div>
+
+                    ${visualization.themes && visualization.themes.length > 0 ? `
+                    <div class="verse-card-themes">
+                        ${visualization.themes.map(t => `<span class="verse-card-theme">${t}</span>`).join('')}
+                    </div>
+                    ` : ''}
+
+                    ${visualization.notes ? `
+                    <div class="verse-card-notes">
+                        <div class="verse-card-notes-title">Insight</div>
+                        <div class="verse-card-notes-content">${visualization.notes}</div>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
 
             // HD Image section
             if (visualization.imagePath) {
@@ -1347,12 +1500,6 @@
                             <a href="${visualization.imagePath}" download="${safeRef}.png" class="download-btn">
                                 ⬇️ Download Image
                             </a>
-                            <button onclick="downloadAscii()" class="download-btn orange">
-                                📝 Download ASCII
-                            </button>
-                            <button onclick="downloadFrame()" class="download-btn purple">
-                                📥 Download Full Frame
-                            </button>
                         </div>
                     </div>
                 `;
@@ -1361,15 +1508,7 @@
                     <div class="hd-image-container">
                         <div class="image-loading">
                             <div class="loading-spinner">🎨</div>
-                            <p>Generating HD image...</p>
-                        </div>
-                        <div class="download-buttons">
-                            <button onclick="downloadAscii()" class="download-btn orange">
-                                📝 Download ASCII
-                            </button>
-                            <button onclick="downloadFrame()" class="download-btn purple">
-                                📥 Download Full Frame
-                            </button>
+                            <p>Image not yet generated</p>
                         </div>
                     </div>
                 `;
@@ -1538,6 +1677,69 @@
             preview.textContent = ascii;
         }
 
+        async function fixAsciiBorders() {
+            if (!currentEditFrameId) {
+                setEditStatus('error', 'No frame selected.');
+                return;
+            }
+
+            setEditStatus('loading', 'Fixing borders...');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/frame/${currentEditFrameId}/fix-borders`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...getAuthHeaders()
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('editAscii').value = result.asciiArt;
+                    updateAsciiPreview();
+                    setEditStatus('success', 'Borders fixed! Review and click "Save New Version" to keep changes.');
+                } else {
+                    setEditStatus('error', result.error || 'Failed to fix borders.');
+                }
+            } catch (e) {
+                setEditStatus('error', 'Failed to connect to API.');
+            }
+        }
+
+        async function formatAsciiArt() {
+            if (!currentEditFrameId) {
+                setEditStatus('error', 'No frame selected.');
+                return;
+            }
+
+            setEditStatus('loading', 'Claude is enhancing the ASCII art... This may take a moment.');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/frame/${currentEditFrameId}/format-ascii`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...getAuthHeaders()
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Update the textarea with Claude's formatted ASCII
+                    document.getElementById('editAscii').value = result.asciiArt;
+                    updateAsciiPreview();
+                    setEditStatus('success', 'Claude has recreated the ASCII art! Review it in the preview. Click "Save New Version" to keep it, or edit further.');
+                } else {
+                    setEditStatus('error', result.error || 'Failed to format ASCII art.');
+                }
+            } catch (e) {
+                setEditStatus('error', 'Failed to connect to API. Is api_server.py running?');
+            }
+        }
+
         async function openEditModal() {
             if (!framesDatabase || framesDatabase.frames.length === 0) return;
 
@@ -1560,8 +1762,8 @@
             document.getElementById('editReference').textContent = frame.reference;
             document.getElementById('editVerseText').textContent = `"${frame.text}"`;
             document.getElementById('editTitle').value = frame.visualization.title || '';
-            document.getElementById('editAscii').value = frame.visualization.asciiArt || '';
-            updateAsciiPreview();
+            document.getElementById('editThemes').value = frame.visualization.themes ? frame.visualization.themes.join(', ') : '';
+            document.getElementById('editNotes').value = frame.visualization.notes || '';
 
             // Reset version UI
             document.getElementById('versionList').innerHTML = '<p class="no-versions">Loading versions...</p>';
@@ -1654,6 +1856,16 @@
                             </div>
                             <div class="version-ascii-preview">${escapeHtml(asciiPreview)}</div>
                         </div>
+                        ${!v.isCurrent ? `
+                        <div class="version-item-actions" onclick="event.stopPropagation()">
+                            <button class="use-ascii-btn" onclick="useVersionAscii(${v.version})" ${!v.asciiArt ? 'disabled' : ''}>
+                                Use ASCII
+                            </button>
+                            <button class="use-image-btn" onclick="useVersionImage(${v.version})" ${!v.imagePath ? 'disabled' : ''}>
+                                Use Image
+                            </button>
+                        </div>
+                        ` : ''}
                     </div>
                 `;
             });
@@ -1728,6 +1940,79 @@
             }
         }
 
+        async function useVersionAscii(versionNumber) {
+            if (!currentEditFrameId) return;
+
+            setEditStatus('loading', `Applying ASCII from version ${versionNumber}...`);
+
+            try {
+                const response = await fetch(`${API_BASE}/api/frame/${currentEditFrameId}/use-ascii`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...getAuthHeaders()
+                    },
+                    body: JSON.stringify({ version: versionNumber })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    setEditStatus('success', `ASCII from version ${versionNumber} applied! Saved as new version.`);
+
+                    // Refresh
+                    await loadFramesDatabase();
+                    showFrame(currentFrameIndex);
+
+                    // Update modal
+                    document.getElementById('editAscii').value = result.asciiArt || '';
+                    updateAsciiPreview();
+
+                    await loadVersionHistory();
+                } else {
+                    setEditStatus('error', result.error || 'Failed to apply ASCII');
+                }
+            } catch (e) {
+                setEditStatus('error', 'Failed to apply ASCII');
+            }
+        }
+
+        async function useVersionImage(versionNumber) {
+            if (!currentEditFrameId) return;
+
+            setEditStatus('loading', `Applying image from version ${versionNumber}...`);
+
+            try {
+                const response = await fetch(`${API_BASE}/api/frame/${currentEditFrameId}/use-image`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...getAuthHeaders()
+                    },
+                    body: JSON.stringify({ version: versionNumber })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    setEditStatus('success', `Image from version ${versionNumber} applied! Saved as new version.`);
+
+                    // Force cache refresh
+                    imageCacheBuster = Date.now();
+
+                    // Refresh
+                    await loadFramesDatabase();
+                    showFrame(currentFrameIndex);
+
+                    await loadVersionHistory();
+                } else {
+                    setEditStatus('error', result.error || 'Failed to apply image');
+                }
+            } catch (e) {
+                setEditStatus('error', 'Failed to apply image');
+            }
+        }
+
         function closeEditModal() {
             document.getElementById('editModal').style.display = 'none';
             currentEditFrameId = null;
@@ -1744,7 +2029,9 @@
             if (!currentEditFrameId) return;
 
             const title = document.getElementById('editTitle').value;
-            const asciiArt = document.getElementById('editAscii').value;
+            const themesInput = document.getElementById('editThemes').value;
+            const themes = themesInput ? themesInput.split(',').map(t => t.trim()).filter(t => t) : [];
+            const notes = document.getElementById('editNotes').value;
             const prompt = document.getElementById('editPrompt').value;
 
             setEditStatus('loading', 'Saving new version...');
@@ -1757,7 +2044,7 @@
                         'Content-Type': 'application/json',
                         ...getAuthHeaders()
                     },
-                    body: JSON.stringify({ title, asciiArt, imagePrompt: prompt })
+                    body: JSON.stringify({ title, themes, notes, imagePrompt: prompt })
                 });
 
                 const result = await response.json();
@@ -1820,6 +2107,35 @@
                     await loadVersionHistory();
                 } else {
                     setEditStatus('error', result.error || 'Failed to generate image.');
+                }
+            } catch (e) {
+                setEditStatus('error', 'Failed to connect to API. Is api_server.py running?');
+            }
+        }
+
+        async function regenerateAscii() {
+            if (!currentEditFrameId) return;
+
+            setEditStatus('loading', 'Generating ASCII art with GPT-4... This may take a moment.');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/frame/${currentEditFrameId}/regenerate-ascii`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...getAuthHeaders()
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Update the ASCII textarea with the new art
+                    document.getElementById('editAscii').value = result.asciiArt;
+                    updateAsciiPreview();
+                    setEditStatus('success', 'ASCII art generated! Review it and click "Save New Version" to keep it.');
+                } else {
+                    setEditStatus('error', result.error || 'Failed to generate ASCII art.');
                 }
             } catch (e) {
                 setEditStatus('error', 'Failed to connect to API. Is api_server.py running?');
@@ -2123,12 +2439,12 @@
             text-align: center;
         }
         .ascii-art {
-            font-family: 'Courier New', monospace;
+            font-family: 'Courier New', Consolas, monospace;
             white-space: pre;
-            line-height: 1.4;
-            font-size: 1em;
-            text-align: center;
-            color: #333;
+            line-height: 1.2;
+            font-size: 14px;
+            text-align: left;
+            color: #000;
             overflow-x: auto;
         }
         .image-section { text-align: center; }

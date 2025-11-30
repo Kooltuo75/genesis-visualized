@@ -300,7 +300,7 @@
     </div>
 
     <script>
-        const API_BASE = window.location.origin;
+        const API_BASE = window.location.protocol + '//' + window.location.hostname + ':8003';
 
         // Check if already logged in
         document.addEventListener('DOMContentLoaded', checkAuth);
